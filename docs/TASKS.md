@@ -1,550 +1,453 @@
-# TASKS.md — Active Tasks (T0–T2)
+# T3 — Shared UI Components (Widgets Only)
 
-This file is a **single scratchpad** for the *current* in‑progress tasks that Gemini must follow **exactly**.  
-Keep this file short and focused: when a task is finished, either:
-- Move it to `TASKS_ARCHIVE.md`, **or**
-- Collapse it to a single checked summary line here (to keep token usage low).
+## Context
+Create a small **UI kit** (presentational widgets) that all screens will reuse.  
+This prevents Gemini from improvising layouts and keeps visual consistency.  
+**No business logic, no providers, no navigation here.** Static baseline only.
 
-For now, this file contains **T0, T1, T2** only.
-
-> Global rules for Gemini:
-> - Do not add files not listed. Do not rename/move files. Follow paths exactly.
-> - Store `DateTime` in **UTC** only. Convert to local for display.
-> - All new user-visible strings will be localized later (T11). For now, keep placeholder text minimal.
-> - If any step fails for >15 minutes, STOP and paste: exact error **message**, **file/line**, and what you tried.
-
----
-
-## T0 — Project Bootstrap
-
-### Context
-Prepare the Flutter project for development.  
-You already ran `flutter create countdown_app`. This task installs dependencies and validates Android baseline settings.
-
-### Files To Modify
-- `pubspec.yaml`
-- `android/app/build.gradle`
-
-### Checklist
-
-#### T0.A — Dependencies
-- [ ] Open `pubspec.yaml`.
-- [ ] Under `dependencies:`, add **exactly**:
-```
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_riverpod: ^2.4.0
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
-  intl: ^0.19.0
-  google_fonts: ^6.0.0
-  flutter_local_notifications: ^16.0.0
-  home_widget: ^0.5.0
-  flutter_animate: ^4.3.0
-  purchases_flutter: ^6.24.0
-```
-- [ ] Under `dev_dependencies:`, ensure (add if missing):
-```
-dev_dependencies:
-  flutter_lints: ^4.0.0
-  build_runner: ^2.4.9
-```
-- [ ] Save the file.
-
-#### T0.B — Android minSdk
-- [ ] Open `android/app/build.gradle`.
-- [ ] Confirm **`minSdkVersion` is 21 or higher** inside `defaultConfig { ... }`. Example:
-```
-defaultConfig {
-    applicationId "com.example.countdown_app"
-    minSdkVersion 21
-    targetSdkVersion 34
-}
-```
-
-#### T0.C — Install & Verify
-- [ ] Run:
-```
-flutter pub get
-```
-- [ ] Run static analysis:
-```
-flutter analyze
-```
-- [ ] Build & launch on an emulator/device:
-```
-flutter run
-```
-- [ ] Verify: app launches (default Flutter counter app or blank screen, depending on your current code).
-
-### Acceptance Criteria
-- [ ] `flutter pub get` completes with no errors.
-- [ ] `flutter analyze` has **0** errors.
-- [ ] The project launches on Android emulator (or physical device) without runtime errors.
-
-### Troubleshooting (Common)
-- If `pub get` fails on a package: re‑run `flutter pub get`. If still failing, run `flutter clean && flutter pub get`. Paste full error into the chat.
-- If Gradle error about `minSdkVersion`: update to **21** and re‑sync.
-- If `purchases_flutter` gradle issues on first sync: run `flutter clean && flutter pub get`. Ensure internet access for Gradle to fetch dependencies.
+## Files to Create
+- `lib/widgets/app_button.dart`
+- `lib/widgets/app_text_field.dart`
+- `lib/widgets/empty_state.dart`
+- `lib/widgets/section_tile.dart`
+- `lib/widgets/countdown_card.dart`
+- *(dev-only)* `lib/dev/ui_playground.dart` – a temporary screen to preview all widgets
 
 ---
 
-## T1 — Core Scaffold & Theming
+## T3.A — `app_button.dart`
+**Goal:** One button API with 3 styles (filled / tonal / outline), consistent size, rounded corners.
 
-### Context
-Create the global app shell: theming, routes, utilities, and entrypoint.  
-This should compile and show a minimal scaffold (no feature UI yet).
-
-### Files To Create
-- `lib/core/app.dart`
-- `lib/core/navigation/routes.dart`
-- `lib/core/theme/colors.dart`
-- `lib/core/theme/typography.dart`
-- `lib/core/theme/themes.dart`
-- `lib/core/utils/gaps.dart`
-- `lib/core/utils/formatters.dart`
-- `lib/core/utils/constants.dart`
-- `lib/main.dart` (modify if exists)
-
-### Checklist (with code stubs)
-
-#### T1.A — Colors
-- [ ] Create `lib/core/theme/colors.dart` with:
 ```dart
+// lib/widgets/app_button.dart
 import 'package:flutter/material.dart';
 
-class AppColors {
-  // Pastel primaries
-  static const Color pink = Color(0xFFFFB3C7);
-  static const Color mint = Color(0xFFB8F2E6);
-  static const Color lavender = Color(0xFFCFB7FF);
+enum AppButtonStyle { filled, tonal, outline }
 
-  // Accents
-  static const Color accent = Color(0xFF7C4DFF);
+class AppButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final AppButtonStyle style;
+  final IconData? leading;
+  final bool expanded; // true -> full width
+  final EdgeInsetsGeometry padding;
 
-  // Neutrals
-  static const Color black = Color(0xFF121212);
-  static const Color white = Color(0xFFFFFFFF);
-  static const Color grey700 = Color(0xFF616161);
-  static const Color grey300 = Color(0xFFE0E0E0);
-}
-```
-
-#### T1.B — Typography
-- [ ] Create `lib/core/theme/typography.dart` with:
-```dart
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-class AppText {
-  static TextTheme textTheme = TextTheme(
-    displayLarge: GoogleFonts.inter(
-      fontSize: 52, fontWeight: FontWeight.w800, height: 1.1),
-    headlineMedium: GoogleFonts.inter(
-      fontSize: 24, fontWeight: FontWeight.w700),
-    bodyLarge: GoogleFonts.inter(
-      fontSize: 16, fontWeight: FontWeight.w400, height: 1.4),
-    labelLarge: GoogleFonts.inter(
-      fontSize: 16, fontWeight: FontWeight.w600),
-  );
-}
-```
-
-#### T1.C — Themes
-- [ ] Create `lib/core/theme/themes.dart` with:
-```dart
-import 'package:flutter/material.dart';
-import 'colors.dart';
-import 'typography.dart';
-
-ThemeData lightTheme = ThemeData(
-  colorScheme: ColorScheme.fromSeed(seedColor: AppColors.pink, brightness: Brightness.light),
-  useMaterial3: true,
-  textTheme: AppText.textTheme,
-);
-
-ThemeData darkTheme = ThemeData(
-  colorScheme: ColorScheme.fromSeed(seedColor: AppColors.lavender, brightness: Brightness.dark),
-  useMaterial3: true,
-  textTheme: AppText.textTheme.apply(
-    bodyColor: Colors.white, displayColor: Colors.white),
-);
-```
-
-#### T1.D — Routes
-- [ ] Create `lib/core/navigation/routes.dart` with:
-```dart
-import 'package:flutter/material.dart';
-
-class Routes {
-  static const root = '/';
-  static const countdownDetail = '/countdown/detail';
-  static const countdownAddEdit = '/countdown/add_edit';
-  static const settings = '/settings';
-  static const paywall = '/settings/paywall';
-
-  static Map<String, WidgetBuilder> builders() => {
-    root: (_) => const _PlaceholderScreen(title: 'Countdown List'),
-    countdownDetail: (_) => const _PlaceholderScreen(title: 'Countdown Detail'),
-    countdownAddEdit: (_) => const _PlaceholderScreen(title: 'Add/Edit Countdown'),
-    settings: (_) => const _PlaceholderScreen(title: 'Settings'),
-    paywall: (_) => const _PlaceholderScreen(title: 'Paywall'),
-  };
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({super.key, required this.title});
+  const AppButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.style = AppButtonStyle.filled,
+    this.leading,
+    this.expanded = true,
+    this.padding = const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text(title)),
+    final child = Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (leading != null) ...[
+          Icon(leading, size: 18),
+          const SizedBox(width: 8),
+        ],
+        Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+      ],
     );
+
+    switch (style) {
+      case AppButtonStyle.filled:
+        final s = FilledButton.styleFrom(
+          padding: padding,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        );
+        final w = FilledButton(onPressed: onPressed, style: s, child: child);
+        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+
+      case AppButtonStyle.tonal:
+        final s = FilledButton.tonalStyleFrom(
+          padding: padding,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        );
+        final w = FilledButton.tonal(onPressed: onPressed, style: s, child: child);
+        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+
+      case AppButtonStyle.outline:
+        final s = OutlinedButton.styleFrom(
+          padding: padding,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        );
+        final w = OutlinedButton(onPressed: onPressed, style: s, child: child);
+        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+    }
   }
 }
 ```
 
-#### T1.E — Gaps
-- [ ] Create `lib/core/utils/gaps.dart` with:
+**Manual tests**
+- Render filled/tonal/outline; with & without leading icon; expanded & non-expanded.
+- Heights and corner radii match across variants.
+
+---
+
+## T3.B — `app_text_field.dart`
+**Goal:** Consistent text input styling (labels above, rounded, filled background).
+
 ```dart
-import 'package:flutter/widgets.dart';
-
-const gap8 = SizedBox(height: 8, width: 8);
-const gap12 = SizedBox(height: 12, width: 12);
-const gap16 = SizedBox(height: 16, width: 16);
-const gap24 = SizedBox(height: 24, width: 24);
-```
-
-#### T1.F — Formatters (stubs)
-- [ ] Create `lib/core/utils/formatters.dart` with:
-```dart
-import 'package:intl/intl.dart';
-
-String formatDateLocalized(DateTime utc, String locale) {
-  // NOTE: will refine in T12, for now basic yMMMd
-  final local = utc.toLocal();
-  return DateFormat.yMMMd(locale).format(local);
-}
-
-String formatDDayLabel(DateTime targetUtc, DateTime nowLocal, String locale) {
-  final targetLocal = targetUtc.toLocal();
-  final now = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
-  final target = DateTime(targetLocal.year, targetLocal.month, targetLocal.day);
-  final diff = target.difference(now).inDays;
-  if (diff > 0) return '$diff days';
-  if (diff == 0) return 'Today';
-  return '${diff.abs()} days ago';
-}
-```
-
-#### T1.G — Constants
-- [ ] Create `lib/core/utils/constants.dart` with:
-```dart
-const kFreeEventCap = 2;
-const kEntitlementPro = 'pro';
-
-// Product IDs (fill real IDs later)
-const kProductProLifetimeIOS = 'pro_lifetime_jp_1200';
-const kProductProLifetimeAndroid = 'pro_lifetime_jp_1200';
-```
-
-#### T1.H — App
-- [ ] Create `lib/core/app.dart` with:
-```dart
+// lib/widgets/app_text_field.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'theme/themes.dart';
-import 'navigation/routes.dart';
 
-class App extends StatelessWidget {
-  const App({super.key});
+class AppTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;     // e.g., "Title"
+  final String? hint;     // e.g., "e.g. Birthday Party"
+  final int maxLines;     // >1 for Notes
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final Widget? trailing; // suffixIcon (e.g., date icon)
+  final bool readOnly;
+  final VoidCallback? onTap;
+
+  const AppTextField({
+    super.key,
+    required this.controller,
+    required this.label,
+    this.hint,
+    this.maxLines = 1,
+    this.keyboardType,
+    this.textInputAction,
+    this.trailing,
+    this.readOnly = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: MaterialApp(
-        title: 'Countdown',
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        routes: Routes.builders(),
-        initialRoute: Routes.root,
-        debugShowCheckedModeBanner: false,
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      readOnly: readOnly,
+      onTap: onTap,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        suffixIcon: trailing,
+        filled: true,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
 }
 ```
 
-#### T1.I — Main
-- [ ] Replace `lib/main.dart` with:
-```dart
-import 'package:flutter/material.dart';
-import 'core/app.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const App());
-}
-```
-
-#### T1.J — Build & Smoke Test
-- [ ] Run:
-```
-flutter pub get
-flutter analyze
-flutter run
-```
-- [ ] Verify: App launches with a top AppBar reading “Countdown List”. Placeholders render without crashes.
-
-### Acceptance Criteria
-- [ ] App builds with **0** analyzer errors.
-- [ ] Placeholder navigation works if pushed via `Navigator.pushNamed(context, '/settings')` from a debug button/snippet.
-- [ ] Light/Dark themes compile without runtime errors.
-
-### Troubleshooting (Common)
-- “fontFamily not found” → Ensure `google_fonts` is in deps and `flutter pub get` re‑run.
-- “Route not found” → Confirm you used `Routes.*` constants and `Routes.builders()` in `MaterialApp`.
+**Manual tests**
+- Single-line vs multi-line.
+- Read-only variant (for date field).
+- Long text wraps in notes; label/hint behave correctly.
 
 ---
 
-## T2 — Data Model & Hive Persistence
+## T3.C — `empty_state.dart`
+**Goal:** Reusable centered empty state for the list screen.
 
-### Context
-Implement `CountdownEvent` model, Hive storage, repository, and providers.  
-End state: you can create, list, update, delete events programmatically; `nearestUpcoming` works.
-
-### Files To Create/Modify
-- `lib/features/countdown/data/countdown_event.dart` (new)
-- `lib/features/countdown/data/countdown_repository.dart` (new)
-- `lib/features/countdown/providers.dart` (new)
-- `lib/main.dart` (modify: Hive init and box open)
-
-### Checklist (with code stubs)
-
-#### T2.A — Model (Hive TypeAdapter)
-- [ ] Create `lib/features/countdown/data/countdown_event.dart`:
 ```dart
-import 'package:hive/hive.dart';
+// lib/widgets/empty_state.dart
+import 'package:flutter/material.dart';
 
-part 'countdown_event.g.dart'; // not generating code; adapter will be manual below (no build_runner required)
+class EmptyState extends StatelessWidget {
+  final String emoji;      // "✨" or "🔔"
+  final String title;      // JP or EN line
+  final String? subtitle;  // optional secondary line
 
-@HiveType(typeId: 1)
-class CountdownEvent {
-  @HiveField(0)
-  final String id;
-  @HiveField(1)
-  final String title;
-  @HiveField(2)
-  final DateTime dateUtc; // must be UTC
-  @HiveField(3)
-  final String? emoji;
-  @HiveField(4)
-  final String? notes;
-
-  const CountdownEvent({
-    required this.id,
+  const EmptyState({
+    super.key,
+    required this.emoji,
     required this.title,
-    required this.dateUtc,
-    this.emoji,
-    this.notes,
+    this.subtitle,
   });
 
-  CountdownEvent copyWith({
-    String? id,
-    String? title,
-    DateTime? dateUtc,
-    String? emoji,
-    String? notes,
-  }) => CountdownEvent(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        dateUtc: dateUtc ?? this.dateUtc,
-        emoji: emoji ?? this.emoji,
-        notes: notes ?? this.notes,
-      );
-}
-
-// Manual TypeAdapter to avoid build_runner
-class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
   @override
-  final int typeId = 1;
-
-  @override
-  CountdownEvent read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return CountdownEvent(
-      id: fields[0] as String,
-      title: fields[1] as String,
-      dateUtc: fields[2] as DateTime,
-      emoji: fields[3] as String?,
-      notes: fields[4] as String?,
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 48)),
+            const SizedBox(height: 16),
+            Text(title, style: t.headlineMedium, textAlign: TextAlign.center),
+            if (subtitle != null) ...[
+              const SizedBox(height: 8),
+              Text(subtitle!, style: t.bodyLarge?.copyWith(color: Colors.grey), textAlign: TextAlign.center),
+            ],
+          ],
+        ),
+      ),
     );
   }
-
-  @override
-  void write(BinaryWriter writer, CountdownEvent obj) {
-    writer
-      ..writeByte(5)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.title)
-      ..writeByte(2)
-      ..write(obj.dateUtc)
-      ..writeByte(3)
-      ..write(obj.emoji)
-      ..writeByte(4)
-      ..write(obj.notes);
-  }
 }
 ```
 
-#### T2.B — Repository
-- [ ] Create `lib/features/countdown/data/countdown_repository.dart`:
-```dart
-import 'package:hive/hive.dart';
-import 'countdown_event.dart';
-
-class CountdownRepository {
-  static const String boxName = 'eventsBox';
-  final Box<CountdownEvent> _box;
-
-  CountdownRepository(this._box);
-
-  List<CountdownEvent> listAll() {
-    final items = _box.values.toList();
-    items.sort((a, b) => a.dateUtc.compareTo(b.dateUtc));
-    return items;
-  }
-
-  Future<void> add(CountdownEvent e) async {
-    await _box.put(e.id, e);
-  }
-
-  Future<void> update(CountdownEvent e) async {
-    await _box.put(e.id, e);
-  }
-
-  Future<void> remove(String id) async {
-    await _box.delete(id);
-  }
-
-  CountdownEvent? nearestUpcoming(DateTime nowUtc) {
-    CountdownEvent? best;
-    for (final e in _box.values) {
-      if (e.dateUtc.isAfter(nowUtc)) {
-        if (best == null || e.dateUtc.isBefore(best!.dateUtc)) {
-          best = e;
-        }
-      }
-    }
-    return best;
-  }
-}
-```
-
-#### T2.C — Providers
-- [ ] Create `lib/features/countdown/providers.dart`:
-```dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'data/countdown_event.dart';
-import 'data/countdown_repository.dart';
-
-final eventsBoxProvider = Provider<Box<CountdownEvent>>((ref) {
-  final box = Hive.box<CountdownEvent>(CountdownRepository.boxName);
-  return box;
-});
-
-final countdownRepositoryProvider = Provider<CountdownRepository>((ref) {
-  final box = ref.watch(eventsBoxProvider);
-  return CountdownRepository(box);
-});
-
-// Simple snapshot providers (will wire to UI later)
-final eventsListProvider = Provider<List<CountdownEvent>>((ref) {
-  final repo = ref.watch(countdownRepositoryProvider);
-  return repo.listAll();
-});
-
-final nearestUpcomingProvider = Provider<CountdownEvent?>((ref) {
-  final repo = ref.watch(countdownRepositoryProvider);
-  return repo.nearestUpcoming(DateTime.now().toUtc());
-});
-```
-
-#### T2.D — Hive Init in main()
-- [ ] Modify `lib/main.dart` to initialize Hive and open the box before `runApp`:
-```dart
-import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'core/app.dart';
-import 'features/countdown/data/countdown_event.dart';
-import 'features/countdown/data/countdown_repository.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Hive.initFlutter();
-  Hive.registerAdapter(CountdownEventAdapter());
-  await Hive.openBox<CountdownEvent>(CountdownRepository.boxName);
-
-  runApp(const App());
-}
-```
-
-#### T2.E — Smoke Test (Temporary)
-- [ ] Add a **temporary** debug sanity check in `main()` right after opening the box:
-```dart
-  // DEBUG ONLY: basic smoke test (remove after T4)
-  final box = Hive.box<CountdownEvent>(CountdownRepository.boxName);
-  if (box.isEmpty) {
-    box.put('demo1', CountdownEvent(
-      id: 'demo1',
-      title: 'Demo Event',
-      dateUtc: DateTime.now().toUtc().add(const Duration(days: 3)),
-      emoji: '🎉',
-      notes: 'This is a demo entry.',
-    ));
-  }
-  // print nearest upcoming
-  final repo = CountdownRepository(box);
-  final next = repo.nearestUpcoming(DateTime.now().toUtc());
-  // ignore: avoid_print
-  print('NEXT EVENT: ${next?.title} at ${next?.dateUtc.toIso8601String()}');
-```
-
-### Commands
-- [ ] Run:
-```
-flutter pub get
-flutter analyze
-flutter run
-```
-- [ ] Observe console log for `NEXT EVENT:` line.
-
-### Acceptance Criteria
-- [ ] App compiles and launches.
-- [ ] No `HiveError` about unknown typeId (confirms adapter registration).
-- [ ] `NEXT EVENT:` prints a valid event on first run.
-- [ ] Restart app; event persists (confirm `NEXT EVENT:` prints same id/title).
-
-### Troubleshooting (Common)
-- **`HiveError: Cannot write, unknown typeId: 1`** → You forgot `Hive.registerAdapter(CountdownEventAdapter())` before opening the box.
-- **`HiveError: Box not found` or `box not opened`** → Ensure `await Hive.openBox<CountdownEvent>(CountdownRepository.boxName)` is called before use.
-- **Data not persisted between runs** → You may be hot‑restarting before `await` completes; stop the app, `flutter run` again.
-- **Wrong timezone math later** → Ensure `dateUtc` is created with `.toUtc()` when saving.
+**Manual tests**
+- Different emoji.
+- Very long subtitle wrapping.
 
 ---
 
-## Guidance: How to Maintain TASKS.md
+## T3.D — `section_tile.dart`
+**Goal:** Settings row with leading icon/emoji, label, optional subtitle, and trailing (switch/chevron).
 
-- Keep **only the current in‑focus task(s)** at the top (e.g., T2 only), and move completed tasks into `TASKS_ARCHIVE.md`.  
-- Alternatively, keep sections but collapse them to a single checked summary when done (saves tokens).  
-- Always include: *Context → Files → Checklist (with code) → Commands → Acceptance → Troubleshooting*.  
+```dart
+// lib/widgets/section_tile.dart
+import 'package:flutter/material.dart';
+
+class SectionTile extends StatelessWidget {
+  final Widget leading;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  const SectionTile({
+    super.key,
+    required this.leading,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            leading,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: t.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle!, style: t.bodySmall),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing != null) trailing!,
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Manual tests**
+- With trailing switch, with chevron, with none.
+- Ink ripple respects rounded corners.
+
+---
+
+## T3.E — `countdown_card.dart`
+**Goal:** A large card for the detail/list style: big D-day text, title+emoji, date, optional note.
+
+```dart
+// lib/widgets/countdown_card.dart
+import 'package:flutter/material.dart';
+
+class CountdownCard extends StatelessWidget {
+  final String ddayText;   // e.g., "D-12" or "あと12日"
+  final String title;      // e.g., "Birthday Party"
+  final String dateLabel;  // e.g., "Oct 26, 2024"
+  final String? emoji;     // e.g., "🎉"
+  final String? note;      // optional small note
+  final VoidCallback? onTap;
+  final Widget? trailing;  // optional menu
+
+  const CountdownCard({
+    super.key,
+    required this.ddayText,
+    required this.title,
+    required this.dateLabel,
+    this.emoji,
+    this.note,
+    this.onTap,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          // Subtle pastel gradient; real colors come from theme.
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [cs.primaryContainer, cs.secondaryContainer],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text(ddayText, style: t.displayLarge)),
+                  if (trailing != null) trailing!,
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  if (emoji != null) Text(emoji!, style: const TextStyle(fontSize: 20)),
+                  if (emoji != null) const SizedBox(width: 8),
+                  Expanded(child: Text(title, style: t.headlineMedium, maxLines: 2, overflow: TextOverflow.ellipsis)),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(dateLabel, style: t.bodyLarge?.copyWith(color: Colors.black54)),
+              if (note != null && note!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(note!, style: t.bodyLarge),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Manual tests**
+- With & without `emoji`.
+- With & without `note`.
+- Long titles truncate nicely (2 lines max).
+
+---
+
+## *(Optional)* T3.F — UI Playground (dev only)
+**Goal:** One temporary screen that shows all widgets in different states for quick visual checks.
+
+```dart
+// lib/dev/ui_playground.dart  (DEV ONLY — do not ship)
+// Temporarily set as home/route to preview widgets quickly.
+import 'package:flutter/material.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_text_field.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/section_tile.dart';
+import '../widgets/countdown_card.dart';
+
+class UiPlayground extends StatefulWidget {
+  const UiPlayground({super.key});
+  @override
+  State<UiPlayground> createState() => _UiPlaygroundState();
+}
+
+class _UiPlaygroundState extends State<UiPlayground> {
+  final title = TextEditingController(text: 'Birthday Party');
+  final notes = TextEditingController(text: 'Don\'t forget to buy a cake!');
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('UI Playground')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const EmptyState(
+            emoji: '✨',
+            title: 'まだカウントダウンがありません！',
+            subtitle: '最初のイベントを追加しましょう🎉',
+          ),
+          const SizedBox(height: 24),
+          const CountdownCard(
+            ddayText: 'D-12',
+            title: 'Birthday Party',
+            dateLabel: 'Oct 26, 2024',
+            emoji: '🎉',
+            note: 'Don\'t forget to buy a cake!',
+          ),
+          const SizedBox(height: 24),
+          AppTextField(controller: title, label: 'Title', hint: 'e.g. Birthday Party'),
+          const SizedBox(height: 16),
+          AppTextField(controller: notes, label: 'Notes', maxLines: 3),
+          const SizedBox(height: 16),
+          const AppButton(label: 'Filled Button'),
+          const SizedBox(height: 8),
+          const AppButton(label: 'Tonal Button', style: AppButtonStyle.tonal),
+          const SizedBox(height: 8),
+          const AppButton(label: 'Outline Button', style: AppButtonStyle.outline),
+          const SizedBox(height: 24),
+          const SectionTile(
+            leading: Text('🎨', style: TextStyle(fontSize: 20)),
+            title: 'テーマ',
+            subtitle: 'パステル',
+            trailing: Icon(Icons.chevron_right),
+          ),
+          const SectionTile(
+            leading: Text('🌙', style: TextStyle(fontSize: 20)),
+            title: 'ダークモード',
+            trailing: Switch(value: true, onChanged: null), // demo
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+*(Temporarily point your `MaterialApp` home/route to `UiPlayground` to verify UI, then remove.)*
+
+---
+
+## Commands
+- `flutter pub get`
+- `flutter analyze`
+- `flutter run`  *(load the playground or render samples somewhere temporary)*
+
+---
+
+## Acceptance Criteria
+- All five widgets compile with **0 analyzer errors**.
+- Visuals match the static mock style (rounded corners, pastel gradient where used).
+- Widgets are **presentational only** (no repository, no Riverpod, no navigation).
+- Components behave consistently: same padding, radius, typography across usages.
+
+---
+
+## Troubleshooting
+- **Ripple leaks past rounded corners** → ensure `InkWell` wraps a parent `Ink` with the same `borderRadius`.
+- **Text truncation** → add `maxLines` + `TextOverflow.ellipsis` on long titles.
+- **Gradient looks harsh** → soften with `primaryContainer/secondaryContainer` or reduce saturation in theme.
