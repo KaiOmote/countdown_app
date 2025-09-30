@@ -1,31 +1,24 @@
 # Countdown / Reminder Widget App (Flutter)
 
-A JP-first, aesthetic countdown app with iOS/Android widgets. Goal: ship fast (2–4 weeks), learn full store flow, and keep costs ~0 (local storage first).
+A simple, aesthetic countdown app with iOS/Android widgets.  
+Primary market: Japan (localized UI, pastel/dark themes).  
+Goal: ship MVP fast (2–4 weeks), learn full store flow, and keep costs ~0.
 
-## Goals
-- Easy to ship MVP.
-- No backend (Hive).
-- Monetizable: free (2 events + ads) → Pro unlock (one-time).
-- Good UI (pastel/dark themes, JP/EN).
+## Quick Overview
+- Free: up to 2 events + ads  
+- Pro (one-time unlock): unlimited events, no ads, premium themes  
+- Local storage first (Hive), no backend costs  
 
-## Tech Stack
-- Flutter (stable)
-- State: Riverpod
-- Storage: Hive + hive_flutter; prefs: shared_preferences (later if needed)
-- Widgets: home_widget
-- Dates/i18n: intl
-- Local notifications: flutter_local_notifications
-- UI: google_fonts, flutter_animate (optionally Rive)
-- Monetization: RevenueCat (`purchases_flutter`) **or** `in_app_purchase`
+## Documentation
+Detailed product requirements, plan, and task breakdowns live in the [`/docs`](./docs) folder:
 
-## Packages (baseline)
-```yaml
-flutter_riverpod: ^2.4.0
-hive: ^2.2.3
-hive_flutter: ^1.1.0
-intl: ^0.19.0
-google_fonts: ^6.0.0
-home_widget: ^0.5.0
-flutter_local_notifications: ^16.0.0
-flutter_animate: ^4.3.0
-purchases_flutter: ^6.24.0 # or in_app_purchase ^3.1.0
+- [PRD.md](./docs/PRD.md) – Product Requirements  
+- [PLAN.md](./docs/PLAN.md) – Implementation Plan  
+- [FILE_STRUCTURE.md](./docs/FILE_STRUCTURE.md) – Locked baseline structure  
+- [TASKS.md](./docs/TASKS.md) – Current active tasks  
+- [AGENTS.md](./docs/AGENTS.md) – Lead engineer guide (Codex/ChatGPT)  
+- [GEMINI.md](./docs/GEMINI.md) – Implementer guide (Gemini CLI)  
+
+---
+
+⚡ Built with Flutter, Riverpod, Hive, RevenueCat, and lots of caffeine.
