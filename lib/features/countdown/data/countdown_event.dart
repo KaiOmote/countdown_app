@@ -15,6 +15,8 @@ class CountdownEvent {
   final String? emoji;
   @HiveField(4)
   final String? notes;
+  @HiveField(5)
+  final List<int> reminderOffsets; // days before event
 
   const CountdownEvent({
     required this.id,
@@ -22,6 +24,7 @@ class CountdownEvent {
     required this.dateUtc,
     this.emoji,
     this.notes,
+    this.reminderOffsets = const [],
   });
 
   CountdownEvent copyWith({
@@ -30,12 +33,15 @@ class CountdownEvent {
     DateTime? dateUtc,
     String? emoji,
     String? notes,
-  }) => CountdownEvent(
+    List<int>? reminderOffsets,
+  }) =>
+      CountdownEvent(
         id: id ?? this.id,
         title: title ?? this.title,
         dateUtc: dateUtc ?? this.dateUtc,
         emoji: emoji ?? this.emoji,
         notes: notes ?? this.notes,
+        reminderOffsets: reminderOffsets ?? this.reminderOffsets,
       );
 }
 
@@ -56,13 +62,14 @@ class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
       dateUtc: fields[2] as DateTime,
       emoji: fields[3] as String?,
       notes: fields[4] as String?,
+      reminderOffsets: (fields[5] as List?)?.cast<int>() ?? const [],
     );
   }
 
   @override
   void write(BinaryWriter writer, CountdownEvent obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6) // number of fields
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -72,6 +79,8 @@ class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
       ..writeByte(3)
       ..write(obj.emoji)
       ..writeByte(4)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(5)
+      ..write(obj.reminderOffsets);
   }
 }

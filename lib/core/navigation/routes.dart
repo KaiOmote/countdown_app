@@ -1,10 +1,14 @@
+// countdown_app/lib/core/navigation/routes.dart
 import 'package:flutter/material.dart';
 
+// Countdown
 import '../../features/countdown/presentation/countdown_list_screen.dart';
 import '../../features/countdown/presentation/add_edit_countdown_screen.dart';
 import '../../features/countdown/presentation/countdown_detail_screen.dart';
-import '../../features/settings/presentation/paywall_screen.dart';
+
+// Settings / Paywall
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/settings/presentation/paywall_screen.dart';
 
 class Routes {
   static const root = '/';
@@ -14,44 +18,37 @@ class Routes {
   static const paywall = '/settings/paywall';
 
   static Map<String, WidgetBuilder> builders() => {
-        // Countdown List (root)
+        // List
         root: (_) => const CountdownListScreen(),
 
-        // Countdown Detail (requires eventId)
+        // Detail (expects a String eventId in arguments)
         countdownDetail: (context) {
-          final args = ModalRoute.of(context)!.settings.arguments;
+          final args = ModalRoute.of(context)?.settings.arguments;
           if (args is String) {
             return CountdownDetailScreen(eventId: args);
           }
-          return const _PlaceholderScreen(title: 'Countdown Detail (invalid args)');
+          return const _RouteErrorScreen(message: 'Missing eventId for detail route');
         },
 
-        // Add/Edit Countdown (optional eventId)
-        countdownAddEdit: (context) {
-          final args = ModalRoute.of(context)!.settings.arguments;
-          if (args is String) {
-            return AddEditCountdownScreen(eventId: args); // editing
-          }
-          return const AddEditCountdownScreen(); // new event
-        },
+        // Add/Edit (optional String eventId in arguments; screen reads it)
+        countdownAddEdit: (_) => const AddEditCountdownScreen(),
 
-        // Settings
+        // Settings & Paywall
         settings: (_) => const SettingsScreen(),
-
-        // Paywall
         paywall: (_) => const PaywallScreen(),
       };
 }
 
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({required this.title});
+/// Simple inline error screen for bad route arguments (dev-only).
+class _RouteErrorScreen extends StatelessWidget {
+  final String message;
+  const _RouteErrorScreen({required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text(title)),
+      appBar: AppBar(title: const Text('Route Error')),
+      body: Center(child: Text(message, textAlign: TextAlign.center)),
     );
   }
 }

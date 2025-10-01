@@ -9,44 +9,49 @@ import '../../../widgets/app_text_field.dart';
 import '../../countdown/providers.dart';
 import '../../countdown/data/countdown_event.dart';
 import '../../../core/navigation/routes.dart';
+import '../../notifications/notification_service.dart';
 
 /// Route contract:
 /// - Create new: pushNamed(Routes.countdownAddEdit)
 /// - Edit existing: pushNamed(Routes.countdownAddEdit, arguments: <eventId:String>)
 class AddEditCountdownScreen extends ConsumerStatefulWidget {
-  final String? eventId; 
-
-  const AddEditCountdownScreen({super.key, this.eventId}); 
+  const AddEditCountdownScreen({super.key});
 
   @override
-  ConsumerState<AddEditCountdownScreen> createState() => _AddEditCountdownScreenState();
+  ConsumerState<AddEditCountdownScreen> createState() =>
+      _AddEditCountdownScreenState();
 }
 
-class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen> {
+class _AddEditCountdownScreenState
+    extends ConsumerState<AddEditCountdownScreen> {
   final _title = TextEditingController();
   final _notes = TextEditingController();
   DateTime? _dateUtc;
-  String? _emoji; // simple emoji picker MVP
+  String? _emoji;
+  CountdownEvent? _editingEvent;
+
+  // reminder offsets in days
+  final List<int> _reminders = [];
 
   bool get _isEditing => _editingEvent != null;
-  CountdownEvent? _editingEvent;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Read optional eventId from route arguments
     final args = ModalRoute.of(context)?.settings.arguments;
     final eventId = args is String ? args : null;
     if (eventId != null && _editingEvent == null) {
-      // repo currently has listAll(); we’ll find by id
       final repo = ref.read(countdownRepositoryProvider);
-      final found = repo.listAll().where((e) => e.id == eventId).toList();
-      if (found.isNotEmpty) {
-        _editingEvent = found.first;
+      final list = repo.listAll();
+      final match =
+          list.where((e) => e.id == eventId).toList(); // safe (no .firstOrNull)
+      if (match.isNotEmpty) {
+        _editingEvent = match.first;
         _title.text = _editingEvent!.title;
         _notes.text = _editingEvent!.notes ?? '';
         _dateUtc = _editingEvent!.dateUtc;
         _emoji = _editingEvent!.emoji;
+        _reminders.addAll(_editingEvent!.reminderOffsets);
         setState(() {});
       }
     }
@@ -68,20 +73,17 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
       lastDate: DateTime(nowLocal.year + 50),
       initialDate: initial,
     );
-    if (picked == null) return;
-
-    // MVP: date only (00:00), refine to include time later if needed
-    final localMidnight = DateTime(picked.year, picked.month, picked.day);
-    setState(() {
-      _dateUtc = localMidnight.toUtc();
-    });
+    if (picked != null) {
+      setState(() {
+        _dateUtc = DateTime(picked.year, picked.month, picked.day).toUtc();
+      });
+    }
   }
 
   Future<void> _save() async {
     final repo = ref.read(countdownRepositoryProvider);
-    final list = repo.listAll(); // snapshot
+    final list = repo.listAll();
 
-    // Validation
     if (_title.text.trim().isEmpty) {
       _snack('Please enter a title');
       return;
@@ -91,10 +93,14 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
       return;
     }
 
-    // Free tier cap only for new events
-    final isCreatingNew = !_isEditing;
-    if (isCreatingNew && list.length >= kFreeEventCap) {
-      // Navigate to paywall on cap
+    // Free tier caps
+    if (!_isEditing && list.length >= kFreeEventCap) {
+      if (!mounted) return;
+      Navigator.pushNamed(context, Routes.paywall);
+      return;
+    }
+    if (_reminders.length > 1) {
+      // Pro only: multiple reminders
       if (!mounted) return;
       Navigator.pushNamed(context, Routes.paywall);
       return;
@@ -107,6 +113,7 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
       dateUtc: _dateUtc!,
       emoji: _emoji,
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      reminderOffsets: List<int>.from(_reminders),
     );
 
     if (_isEditing) {
@@ -115,13 +122,26 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
       await repo.add(event);
     }
 
-    // Invalidate snapshot providers so list/detail refresh when we pop
+    // Refresh providers
     ref.invalidate(eventsListProvider);
     ref.invalidate(nearestUpcomingProvider);
+
+    // Schedule (or reschedule) notifications for this event
+    await NotificationService.instance.rescheduleForEvent(event);
 
     if (!mounted) return;
     _snack(_isEditing ? 'Saved changes' : 'Countdown added');
     Navigator.pop(context);
+  }
+
+  void _toggleReminder(int offset) {
+    setState(() {
+      if (_reminders.contains(offset)) {
+        _reminders.remove(offset);
+      } else {
+        _reminders.add(offset);
+      }
+    });
   }
 
   void _snack(String msg) {
@@ -135,6 +155,10 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Countdown' : 'New Countdown'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -146,7 +170,6 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
             textInputAction: TextInputAction.next,
           ),
           gap16,
-          // Date input (read-only field that opens a date picker)
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _pickDate,
@@ -165,19 +188,54 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
             ),
           ),
           gap16,
-          // Emoji picker MVP — small fixed set
+          Text('Reminders', style: Theme.of(context).textTheme.labelLarge),
+          gap8,
+          Wrap(
+            spacing: 8,
+            children: [
+              _ReminderChip(
+                label: '1d',
+                offset: 1,
+                selected: _reminders.contains(1),
+                onTap: () => _toggleReminder(1),
+              ),
+              _ReminderChip(
+                label: '3d',
+                offset: 3,
+                selected: _reminders.contains(3),
+                onTap: () => _toggleReminder(3),
+              ),
+              _ReminderChip(
+                label: '1w',
+                offset: 7,
+                selected: _reminders.contains(7),
+                onTap: () => _toggleReminder(7),
+              ),
+              _ReminderChip(
+                label: '1m',
+                offset: 30,
+                selected: _reminders.contains(30),
+                onTap: () => _toggleReminder(30),
+              ),
+              ActionChip(
+                label: const Text('+ Custom'),
+                onPressed: () {
+                  // Pro-gated (later implement a real custom offset dialog)
+                  Navigator.pushNamed(context, Routes.paywall);
+                },
+              ),
+            ],
+          ),
+          gap16,
           Text('Icon', style: Theme.of(context).textTheme.labelLarge),
           gap8,
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: const ['🎉', '🎂', '✈️', '📺', '🎵', '💖', '📷', '🎓', '🗓️']
-                .map((e) => _EmojiChip(
-                      emoji: e,
-                      selected: _emoji == e,
-                      onSelected: () => setState(() => _emoji = e),
-                    ))
-                .toList(),
+            children: const [
+              '🎉', '🎂', '✈️', '📺', '🎵', '💖', '📷', '🎓', '🗓️',
+              '🏖️', '🎄', '🎬', '☕', '💪'
+            ].map((e) => _EmojiChip(emoji: e)).toList(),
           ),
           gap16,
           AppTextField(
@@ -197,25 +255,43 @@ class _AddEditCountdownScreenState extends ConsumerState<AddEditCountdownScreen>
   }
 }
 
-class _EmojiChip extends StatelessWidget {
-  final String emoji;
+class _ReminderChip extends StatelessWidget {
+  final String label;
+  final int offset;
   final bool selected;
-  final VoidCallback onSelected;
+  final VoidCallback onTap;
 
-  const _EmojiChip({
-    required this.emoji,
+  const _ReminderChip({
+    required this.label,
+    required this.offset,
     required this.selected,
-    required this.onSelected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return ChoiceChip(
-      label: Text(emoji, style: const TextStyle(fontSize: 18)),
+      label: Text(label),
       selected: selected,
-      onSelected: (_) => onSelected(),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onSelected: (_) => onTap(),
     );
   }
 }
 
+class _EmojiChip extends ConsumerWidget {
+  final String emoji;
+  const _EmojiChip({required this.emoji});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state =
+        context.findAncestorStateOfType<_AddEditCountdownScreenState>();
+    final selected = state?._emoji == emoji;
+    return ChoiceChip(
+      label: Text(emoji, style: const TextStyle(fontSize: 18)),
+      selected: selected,
+      onSelected: (_) => state?.setState(() => state._emoji = emoji),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+}
