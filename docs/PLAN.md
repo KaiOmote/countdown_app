@@ -1,4 +1,5 @@
-﻿# Implementation Plan (Step-by-Step, Ordered)
+<!-- countdown_app/docs/PLAN.md -->
+# Implementation Plan (Step-by-Step, Ordered)
 
 This plan is the **single source of truth** for building the Countdown / Reminder Widget App.  
 Follow tasks **in order**. Each task block includes: Context + Files + Steps + Commands + Acceptance.

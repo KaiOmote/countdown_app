@@ -1,3 +1,4 @@
+// countdown_app/lib/features/countdown/data/countdown_event.dart
 import 'package:hive/hive.dart';
 
 // part 'countdown_event.g.dart'; // not generating code; adapter will be manual below (no build_runner required)

@@ -1,3 +1,4 @@
+<!-- countdown_app/docs/FILE_STRUCTURE.md -->
 # File/Folder Structure (Locked Baseline)
 
 lib/

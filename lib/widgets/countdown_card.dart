@@ -1,4 +1,6 @@
+// countdown_app/lib/widgets/countdown_card.dart
 import 'package:flutter/material.dart';
+import '../core/theme/typography.dart'; // AppText
 
 class CountdownCard extends StatelessWidget {
   final String ddayText;   // e.g., "D-12" or "あと12日"
@@ -23,7 +25,6 @@ class CountdownCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final t = Theme.of(context).textTheme;
 
     return InkWell(
       onTap: onTap,
@@ -31,7 +32,6 @@ class CountdownCard extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          // Subtle pastel gradient; real colors come from theme.
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -45,29 +45,46 @@ class CountdownCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text(ddayText, style: t.displayLarge)),
+                  Expanded(
+                    child: Text(
+                      ddayText,
+                      style: AppText.h1,
+                    ),
+                  ),
                   if (trailing != null) trailing!,
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  if (emoji != null) Text(emoji!, style: const TextStyle(fontSize: 20)),
+                  if (emoji != null)
+                    Text(emoji!, style: const TextStyle(fontSize: 20)),
                   if (emoji != null) const SizedBox(width: 8),
-                  Expanded(child: Text(title, style: t.headlineMedium, maxLines: 2, overflow: TextOverflow.ellipsis)),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: AppText.headline,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
-              Text(dateLabel, style: t.bodyLarge?.copyWith(color: Colors.black54)),
+              Text(
+                dateLabel,
+                style: AppText.bodyLarge.copyWith(color: Colors.black54),
+              ),
               if (note != null && note!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(note!, style: t.bodyLarge),
+                  child: Text(note!, style: AppText.bodyLarge),
                 ),
               ],
             ],

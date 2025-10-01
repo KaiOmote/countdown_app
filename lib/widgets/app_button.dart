@@ -1,4 +1,6 @@
+// countdown_app/lib/widgets/app_button.dart
 import 'package:flutter/material.dart';
+import '../core/theme/typography.dart'; // AppText
 
 enum AppButtonStyle { filled, tonal, outline }
 
@@ -9,6 +11,7 @@ class AppButton extends StatelessWidget {
   final IconData? leading;
   final bool expanded; // true -> full width
   final EdgeInsetsGeometry padding;
+  final String? semanticsLabel;
 
   const AppButton({
     super.key,
@@ -18,6 +21,7 @@ class AppButton extends StatelessWidget {
     this.leading,
     this.expanded = true,
     this.padding = const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+    this.semanticsLabel,
   });
 
   @override
@@ -30,34 +34,62 @@ class AppButton extends StatelessWidget {
           Icon(leading, size: 18),
           const SizedBox(width: 8),
         ],
-        Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+        Flexible(
+          child: Text(
+            label,
+            style: AppText.button,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
 
+    Widget button;
     switch (style) {
       case AppButtonStyle.filled:
-        final s = FilledButton.styleFrom(
-          padding: padding,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        button = FilledButton(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            padding: padding,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: child,
         );
-        final w = FilledButton(onPressed: onPressed, style: s, child: child);
-        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+        break;
 
       case AppButtonStyle.tonal:
-        final s = FilledButton.styleFrom(
-          padding: padding,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        button = FilledButton.tonal(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            padding: padding,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: child,
         );
-        final w = FilledButton.tonal(onPressed: onPressed, style: s, child: child);
-        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+        break;
 
       case AppButtonStyle.outline:
-        final s = OutlinedButton.styleFrom(
-          padding: padding,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        button = OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            padding: padding,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          child: child,
         );
-        final w = OutlinedButton(onPressed: onPressed, style: s, child: child);
-        return expanded ? SizedBox(width: double.infinity, child: w) : w;
+        break;
     }
+
+    return Semantics(
+      button: true,
+      label: semanticsLabel ?? label,
+      child: expanded ? SizedBox(width: double.infinity, child: button) : button,
+    );
   }
 }

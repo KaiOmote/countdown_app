@@ -1,3 +1,4 @@
+// countdown_app/lib/core/theme/colors.dart
 import 'package:flutter/material.dart';
 
 class AppColors {

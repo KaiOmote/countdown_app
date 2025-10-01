@@ -1,4 +1,6 @@
+// countdown_app/lib/widgets/empty_state.dart
 import 'package:flutter/material.dart';
+import '../core/theme/typography.dart'; // AppText
 
 class EmptyState extends StatelessWidget {
   final String emoji;      // "✨" or "🔔"
@@ -14,7 +16,6 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -23,10 +24,16 @@ class EmptyState extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 48)),
             const SizedBox(height: 16),
-            Text(title, style: t.headlineMedium, textAlign: TextAlign.center),
+            Text(title,
+                style: AppText.headline,
+                textAlign: TextAlign.center),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
-              Text(subtitle!, style: t.bodyLarge?.copyWith(color: Colors.grey), textAlign: TextAlign.center),
+              Text(
+                subtitle!,
+                style: AppText.bodySmall.copyWith(color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
             ],
           ],
         ),

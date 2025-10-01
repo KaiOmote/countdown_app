@@ -1,3 +1,4 @@
+<!-- countdown_app/docs/README.md -->
 # Countdown / Reminder Widget App (Flutter)
 
 A simple, aesthetic countdown app with iOS/Android widgets.  

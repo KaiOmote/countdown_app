@@ -1,3 +1,4 @@
+// countdown_app/lib/core/utils/constants.dart
 const kFreeEventCap = 2;
 const kEntitlementPro = 'pro';
 

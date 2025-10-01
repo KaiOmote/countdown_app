@@ -1,3 +1,4 @@
+<!-- countdown_app/docs/AGENTS.md -->
 # AGENTS.md – Lead Engineer Guide (ChatGPT/Codex)
 
 ## Role

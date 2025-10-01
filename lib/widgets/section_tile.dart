@@ -1,4 +1,6 @@
+// countdown_app/lib/widgets/section_tile.dart
 import 'package:flutter/material.dart';
+import '../core/theme/typography.dart'; // AppText
 
 class SectionTile extends StatelessWidget {
   final Widget leading;
@@ -18,7 +20,6 @@ class SectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -32,10 +33,12 @@ class SectionTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: t.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(title,
+                      style: AppText.bodyLarge.copyWith(
+                          fontWeight: FontWeight.w600)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!, style: t.bodySmall),
+                    Text(subtitle!, style: AppText.bodySmall),
                   ],
                 ],
               ),

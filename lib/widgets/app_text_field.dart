@@ -1,4 +1,6 @@
+// countdown_app/lib/widgets/app_text_field.dart
 import 'package:flutter/material.dart';
+import '../core/theme/typography.dart'; // AppText
 
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -10,6 +12,7 @@ class AppTextField extends StatelessWidget {
   final Widget? trailing; // suffixIcon (e.g., date icon)
   final bool readOnly;
   final VoidCallback? onTap;
+  final String? semanticsLabel;
 
   const AppTextField({
     super.key,
@@ -22,25 +25,28 @@ class AppTextField extends StatelessWidget {
     this.trailing,
     this.readOnly = false,
     this.onTap,
+    this.semanticsLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      readOnly: readOnly,
-      onTap: onTap,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        suffixIcon: trailing,
-        filled: true,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+    return Semantics(
+      textField: true,
+      label: semanticsLabel ?? label,
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        readOnly: readOnly,
+        onTap: onTap,
+        style: AppText.bodyLarge,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          suffixIcon: trailing,
+          // Borders & filled handled by inputDecorationTheme in ThemeData
+        ),
       ),
     );
   }
