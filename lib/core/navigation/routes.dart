@@ -1,5 +1,10 @@
-// countdown_app/lib/core/navigation/routes.dart
 import 'package:flutter/material.dart';
+
+import '../../features/countdown/presentation/countdown_list_screen.dart';
+import '../../features/countdown/presentation/add_edit_countdown_screen.dart';
+import '../../features/countdown/presentation/countdown_detail_screen.dart';
+import '../../features/settings/presentation/paywall_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 
 class Routes {
   static const root = '/';
@@ -9,17 +14,38 @@ class Routes {
   static const paywall = '/settings/paywall';
 
   static Map<String, WidgetBuilder> builders() => {
-    root: (_) => const _PlaceholderScreen(title: 'Countdown List'),
-    countdownDetail: (_) => const _PlaceholderScreen(title: 'Countdown Detail'),
-    countdownAddEdit: (_) => const _PlaceholderScreen(title: 'Add/Edit Countdown'),
-    settings: (_) => const _PlaceholderScreen(title: 'Settings'),
-    paywall: (_) => const _PlaceholderScreen(title: 'Paywall'),
-  };
+        // Countdown List (root)
+        root: (_) => const CountdownListScreen(),
+
+        // Countdown Detail (requires eventId)
+        countdownDetail: (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          if (args is String) {
+            return CountdownDetailScreen(eventId: args);
+          }
+          return const _PlaceholderScreen(title: 'Countdown Detail (invalid args)');
+        },
+
+        // Add/Edit Countdown (optional eventId)
+        countdownAddEdit: (context) {
+          final args = ModalRoute.of(context)!.settings.arguments;
+          if (args is String) {
+            return AddEditCountdownScreen(eventId: args); // editing
+          }
+          return const AddEditCountdownScreen(); // new event
+        },
+
+        // Settings
+        settings: (_) => const SettingsScreen(),
+
+        // Paywall
+        paywall: (_) => const PaywallScreen(),
+      };
 }
 
 class _PlaceholderScreen extends StatelessWidget {
   final String title;
-  const _PlaceholderScreen({super.key, required this.title});
+  const _PlaceholderScreen({required this.title});
 
   @override
   Widget build(BuildContext context) {

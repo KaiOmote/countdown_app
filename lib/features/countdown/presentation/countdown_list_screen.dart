@@ -15,13 +15,24 @@ class CountdownListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final events = ref.watch(eventsListProvider); // snapshot list (non-reactive yet)
-    final locale = Localizations.localeOf(context).toLanguageTag(); // e.g. "en-US"
+    final events = ref.watch(eventsListProvider);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Countdowns'),
         actions: [
+          if (isIOS)
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () async {
+                await Navigator.pushNamed(context, Routes.countdownAddEdit);
+                ref.invalidate(eventsListProvider);
+                ref.invalidate(nearestUpcomingProvider);
+              },
+              tooltip: 'New Countdown',
+            ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => Navigator.pushNamed(context, Routes.settings),
@@ -29,28 +40,43 @@ class CountdownListScreen extends ConsumerWidget {
         ],
       ),
       body: events.isEmpty
-          ? const EmptyState(
-              emoji: '✨',
-              title: 'まだカウントダウンがありません！',
-              subtitle: '最初のイベントを追加しましょう🎉',
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EmptyState(
+                    emoji: '✨',
+                    title: 'まだカウントダウンがありません！',
+                    subtitle: '最初のイベントを追加しましょう🎉',
+                  ),
+                  gap16,
+                  // Inline primary CTA for discoverability
+                  AppButton(
+                    label: 'New Countdown',
+                    leading: Icons.add,
+                    onPressed: () async {
+                      await Navigator.pushNamed(context, Routes.countdownAddEdit);
+                      ref.invalidate(eventsListProvider);
+                      ref.invalidate(nearestUpcomingProvider);
+                    },
+                  ),
+                ],
+              ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 88), // leave space for FAB/ad
               itemCount: events.length,
               separatorBuilder: (_, __) => gap16,
               itemBuilder: (context, index) {
                 final e = events[index];
                 return CountdownCard(
-                  ddayText: _ddayText(e, locale),
-                  title: _titleWithEmoji(e),
+                  ddayText: formatDDayLabel(e.dateUtc, DateTime.now(), locale),
+                  title: e.title,
                   dateLabel: formatDateLocalized(e.dateUtc, locale),
                   emoji: e.emoji,
                   note: e.notes,
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    Routes.countdownDetail,
-                    arguments: e.id,
-                  ),
+                  onTap: () => Navigator.pushNamed(context, Routes.countdownDetail, arguments: e.id),
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) => _handleMenu(context, ref, value, e),
                     itemBuilder: (context) => const [
@@ -62,32 +88,19 @@ class CountdownListScreen extends ConsumerWidget {
                 );
               },
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: AppButton(
-          label: 'New Countdown',
-          leading: Icons.add,
-          onPressed: () async {
-            await Navigator.pushNamed(context, Routes.countdownAddEdit);
-            // Refresh snapshot providers after returning from Add/Edit
-            ref.invalidate(eventsListProvider);
-            ref.invalidate(nearestUpcomingProvider);
-          },
-        ),
-      ),
+      // FAB only on Android-like platforms
+      floatingActionButton: isIOS
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                await Navigator.pushNamed(context, Routes.countdownAddEdit);
+                ref.invalidate(eventsListProvider);
+                ref.invalidate(nearestUpcomingProvider);
+              },
+              tooltip: 'New Countdown',
+              child: const Icon(Icons.add),
+            ),
     );
-  }
-
-  String _ddayText(CountdownEvent e, String locale) {
-    final nowLocal = DateTime.now();
-    return formatDDayLabel(e.dateUtc, nowLocal, locale);
-  }
-
-  String _titleWithEmoji(CountdownEvent e) {
-    // Keep both title and emoji, but the card already shows emoji in leading row.
-    // Return pure title here; `CountdownCard` displays emoji from e.emoji.
-    return e.title;
   }
 
   void _handleMenu(BuildContext context, WidgetRef ref, String value, CountdownEvent e) async {
