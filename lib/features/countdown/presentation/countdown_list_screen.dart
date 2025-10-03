@@ -10,6 +10,9 @@ import '../../countdown/providers.dart';
 import '../../countdown/data/countdown_event.dart';
 import '../../../core/navigation/routes.dart';
 
+import '../../notifications/notification_service.dart';
+
+
 class CountdownListScreen extends ConsumerWidget {
   const CountdownListScreen({super.key});
 
@@ -113,10 +116,12 @@ class CountdownListScreen extends ConsumerWidget {
       case 'delete':
         final ok = await _confirmDelete(context);
         if (ok) {
+          // Cancel any scheduled reminders for this event
+          await NotificationService.instance
+              .rescheduleForEvent(e.copyWith(reminderOffsets: const []));
           await ref.read(countdownRepositoryProvider).remove(e.id);
           ref.invalidate(eventsListProvider);
           ref.invalidate(nearestUpcomingProvider);
-          // You could show a snackbar:
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Deleted')));
         }
         break;

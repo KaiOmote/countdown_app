@@ -9,19 +9,13 @@ import 'features/notifications/notification_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Hive init
+  await NotificationService.instance.initialize();
+  await NotificationService.instance.ensurePermissions();
+
   await Hive.initFlutter();
   Hive.registerAdapter(CountdownEventAdapter());
   await Hive.openBox<CountdownEvent>(CountdownRepository.boxName);
 
-  // ⚠️ DEV ONLY: uncomment to wipe data after model changes
-  // final box = Hive.box<CountdownEvent>(CountdownRepository.boxName);
-  // await box.clear();
-
-  // Notifications init
-  await NotificationService.instance.initialize();
-
-  // DEBUG seed (optional)
   final box = Hive.box<CountdownEvent>(CountdownRepository.boxName);
   if (box.isEmpty) {
     box.put(
@@ -30,9 +24,9 @@ Future<void> main() async {
         id: 'demo1',
         title: 'Demo Event',
         dateUtc: DateTime.now().toUtc().add(const Duration(days: 3)),
-        emoji: '🎉',
+        emoji: null,
         notes: 'This is a demo entry.',
-        reminderOffsets: const [1], // 1 day before
+        reminderOffsets: const [1],
       ),
     );
   }

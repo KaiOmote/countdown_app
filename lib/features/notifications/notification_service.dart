@@ -1,13 +1,20 @@
 // lib/features/notifications/notification_service.dart
+
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugPrint, defaultTargetPlatform, kDebugMode, kIsWeb;
+import 'package:flutter/material.dart' show WidgetsBinding;
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../../core/navigation/nav.dart';
+import '../../../core/navigation/routes.dart';
 import '../countdown/data/countdown_event.dart';
 
-/// Singleton NotificationService for scheduling/canceling reminders.
 class NotificationService {
   NotificationService._internal();
   static final NotificationService instance = NotificationService._internal();
@@ -16,27 +23,23 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
-  // Android channel IDs
   static const String _channelId = 'countdown_reminders';
   static const String _channelName = 'Countdown Reminders';
   static const String _channelDesc = 'Reminders for upcoming countdown events';
 
-  /// Call once, early in app startup (before runApp).
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Timezone init
     tzdata.initializeTimeZones();
-    // Using tz.local as provided by the device; no explicit setLocalLocation needed.
+    await _configureLocalTimezone();
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    final iosInit = DarwinInitializationSettings(
+    const iosInit = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
-
-    final initSettings = InitializationSettings(
+    const initSettings = InitializationSettings(
       android: androidInit,
       iOS: iosInit,
     );
@@ -46,100 +49,336 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onTapNotification,
     );
 
-    // Create Android channel
     const androidChannel = AndroidNotificationChannel(
       _channelId,
       _channelName,
       description: _channelDesc,
-      importance: Importance.defaultImportance,
+      importance: Importance.max,
     );
+
     await _plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(androidChannel);
 
     _initialized = true;
   }
 
-  /// Ask the user for permissions where needed.
-  ///
-  /// iOS: request runtime notification permissions.
-  /// Android: we skip explicit runtime requests here to avoid API mismatch;
-  ///          most devices are fine. We can add a Settings toggle later.
   Future<void> ensurePermissions() async {
-    // iOS
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true);
+    await initialize();
 
-    // ANDROID NOTE:
-    // Some plugin versions expose requestPermission() or requestNotificationsPermission()
-    // on Android, others don't. To keep compile-safe across versions, we skip it here.
-    // If you want an explicit permission flow for Android 13+, we’ll add it later
-    // behind a settings toggle and handle it with a version check.
+    if (_isIOS) {
+      final iosPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      final settings = await iosPlugin?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      if (kDebugMode) {
+        debugPrint('[Notif] iOS permission request result: $settings');
+      }
+    }
+
+    if (_isAndroid && !kIsWeb) {
+      final notifStatus = await Permission.notification.status;
+      if (kDebugMode) {
+        debugPrint(
+          '[Notif] Android notification permission status: $notifStatus',
+        );
+      }
+      if (!notifStatus.isGranted) {
+        final requestResult = await Permission.notification.request();
+        if (kDebugMode) {
+          debugPrint(
+            '[Notif] Android notification permission request: $requestResult',
+          );
+        }
+      }
+
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      final canExact = await androidPlugin?.canScheduleExactNotifications();
+      if (kDebugMode) {
+        debugPrint('[Notif] canScheduleExactNotifications -> $canExact');
+      }
+      if (canExact == false) {
+        final exactPermission = await Permission.scheduleExactAlarm.status;
+        if (kDebugMode) {
+          debugPrint('[Notif] scheduleExactAlarm status: $exactPermission');
+        }
+        if (!exactPermission.isGranted) {
+          final result = await Permission.scheduleExactAlarm.request();
+          if (kDebugMode) {
+            debugPrint('[Notif] scheduleExactAlarm request -> $result');
+          }
+        }
+        final granted = await androidPlugin?.requestExactAlarmsPermission();
+        if (kDebugMode) {
+          debugPrint('[Notif] requestExactAlarmsPermission -> $granted');
+        }
+      }
+    }
+
+    final enabled = await _areNotificationsEnabled();
+    if (kDebugMode) {
+      debugPrint('[Notif] areNotificationsEnabled -> $enabled');
+    }
   }
 
-  /// Cancel & reschedule all reminders for this event to match current offsets.
-  /// To cancel everything, call with event.copyWith(reminderOffsets: []).
   Future<void> rescheduleForEvent(CountdownEvent event) async {
     await initialize();
     await ensurePermissions();
 
-    // Cancel any existing scheduled notifications for this event ID.
     await _cancelKnown(event);
-
     if (event.reminderOffsets.isEmpty) return;
 
     for (final offsetDays in event.reminderOffsets) {
-      final schedule = _computeTriggerLocal(event.dateUtc, offsetDays);
+      final scheduled = _computeTriggerLocal(event.dateUtc, offsetDays);
+      if (scheduled == null) continue;
 
-      if (schedule == null) continue; // in the past -> skip
-
-      final nid = _notificationId(event.id, offsetDays);
-      final details = _platformDetails();
-
+      final id = _notificationId(event.id, offsetDays);
       await _plugin.zonedSchedule(
-        nid,
-        // Title
-        '⏰ ${event.title}',
-        // Body
+        id,
+        'Upcoming: ${event.title}',
         _bodyForOffset(offsetDays, event),
-        schedule,
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        scheduled,
+        _platformDetails(),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.dateAndTime,
-        payload: event.id, // later we can deep-link using this
+        payload: event.id,
+      );
+
+      if (kDebugMode) {
+        debugPrint(
+          '[Notif] Scheduled reminder id=$id at $scheduled for event=${event.id}',
+        );
+      }
+    }
+  }
+
+  Future<void> showImmediateTest(String eventId, String title) async {
+    await initialize();
+    await ensurePermissions();
+
+    final id = _debugNotificationId(eventId, Duration.zero);
+    await _plugin.show(
+      id,
+      'Test: $title',
+      'Immediate notification',
+      _platformDetails(),
+      payload: eventId,
+    );
+
+    if (kDebugMode) {
+      debugPrint('[NotifDebug] showImmediateTest id=$id tz=${tz.local.name}');
+    }
+  }
+
+  Future<void> showTestNotification(
+    String eventId,
+    String title,
+    DateTime dateUtc,
+    Duration offset,
+  ) async {
+    await initialize();
+    await ensurePermissions();
+
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduled = now.add(offset);
+    final id = _debugNotificationId(eventId, offset);
+
+    var mode = await _preferredAndroidScheduleMode(exact: true);
+    try {
+      await _plugin.zonedSchedule(
+        id,
+        'Upcoming: $title',
+        'Test reminder - fires at ${_formatTime(scheduled)}',
+        scheduled,
+        _platformDetails(),
+        androidScheduleMode: mode,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: eventId,
+      );
+    } on PlatformException catch (err) {
+      final triedExact = mode == AndroidScheduleMode.exactAllowWhileIdle;
+      if (triedExact && _isAndroid) {
+        mode = AndroidScheduleMode.inexactAllowWhileIdle;
+        if (kDebugMode) {
+          debugPrint(
+            '[NotifDebug] exact alarm denied ($err), retrying inexact',
+          );
+        }
+        await _plugin.zonedSchedule(
+          id,
+          'Upcoming: $title',
+          'Test reminder - fires at ${_formatTime(scheduled)}',
+          scheduled,
+          _platformDetails(),
+          androidScheduleMode: mode,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          payload: eventId,
+        );
+      } else {
+        rethrow;
+      }
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        '[NotifDebug] Scheduled test id=$id at $scheduled (now=$now, tz=${tz.local.name}) mode=$mode',
       );
     }
   }
 
-  /// Compute a 09:00 local trigger time for [eventUtc - offsetDays].
-  tz.TZDateTime? _computeTriggerLocal(DateTime eventUtc, int offsetDays) {
-    // Event stored as UTC. Convert to local date (drop time-of-day), then subtract days.
-    final local = eventUtc.toLocal();
-    final eventLocalDate = DateTime(local.year, local.month, local.day);
-    final remindLocalDate =
-        eventLocalDate.subtract(Duration(days: offsetDays));
+  Future<void> cancelDebugForEvent(String eventId) async {
+    final offsets = <Duration>[
+      Duration.zero,
+      const Duration(seconds: 30),
+      const Duration(minutes: 1),
+      const Duration(minutes: 2),
+      const Duration(minutes: 3),
+      const Duration(minutes: 5),
+    ];
+    for (final offset in offsets) {
+      final id = _debugNotificationId(eventId, offset);
+      await _plugin.cancel(id);
+    }
+  }
 
-    // Schedule at 09:00 local on that day.
+  Future<String> debugStatus() async {
+    await initialize();
+    final buffer = StringBuffer()
+      ..writeln('=== Notifications Debug ===')
+      ..writeln('Initialized: $_initialized')
+      ..writeln('tz.local: ${tz.local.name}')
+      ..writeln('Now: ${tz.TZDateTime.now(tz.local)}');
+
+    final enabled = await _areNotificationsEnabled();
+    buffer.writeln('Notifications enabled: $enabled');
+
+    final pending = await _plugin.pendingNotificationRequests();
+    buffer.writeln('Pending: ${pending.length}');
+    for (final request in pending) {
+      buffer.writeln(
+        ' - [${request.id}] ${request.title} | ${request.body} (payload=${request.payload})',
+      );
+    }
+
+    return buffer.toString();
+  }
+
+  Future<void> _configureLocalTimezone() async {
+    final now = DateTime.now();
+    final offset = now.timeZoneOffset;
+    final gmtLabel = _formatOffset(offset);
+
+    final candidates = <String?>[
+      gmtLabel,
+      _findMatchingLocation(offset),
+      _formatEtcName(offset),
+      'Asia/Tokyo',
+      'UTC',
+    ];
+
+    final errors = <String>[];
+    String? resolvedName;
+
+    for (final candidate in candidates) {
+      if (candidate == null) continue;
+      try {
+        final location = tz.getLocation(candidate);
+        tz.setLocalLocation(location);
+        resolvedName = candidate;
+        break;
+      } catch (err) {
+        errors.add('$candidate -> $err');
+      }
+    }
+
+    if (resolvedName == null) {
+      tz.setLocalLocation(tz.getLocation('UTC'));
+      resolvedName = 'UTC';
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        '[Notif] system offset: ${_formatOffset(offset, withGmt: false)}',
+      );
+      debugPrint('[Notif] computed tz label: $gmtLabel');
+      debugPrint(
+        '[Notif] tz.local set: ${tz.local.name} (resolved=$resolvedName)',
+      );
+      if (errors.isNotEmpty) {
+        debugPrint(
+          '[Notif] timezone resolution fallbacks: ${errors.join('; ')}',
+        );
+      }
+    }
+  }
+
+  Future<AndroidScheduleMode> _preferredAndroidScheduleMode({
+    required bool exact,
+  }) async {
+    if (!_isAndroid || kIsWeb) {
+      return exact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+
+    if (!exact) {
+      return AndroidScheduleMode.inexactAllowWhileIdle;
+    }
+
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final canExact = await androidPlugin?.canScheduleExactNotifications();
+    if (kDebugMode) {
+      debugPrint(
+        '[Notif] preferred schedule mode exact=$exact canExact=$canExact',
+      );
+    }
+    return canExact == false
+        ? AndroidScheduleMode.inexactAllowWhileIdle
+        : AndroidScheduleMode.exactAllowWhileIdle;
+  }
+
+  tz.TZDateTime? _computeTriggerLocal(DateTime eventUtc, int offsetDays) {
+    if (offsetDays < 0) return null;
+
+    final eventLocal = tz.TZDateTime.from(eventUtc, tz.local);
+    final targetDate = tz.TZDateTime(
+      tz.local,
+      eventLocal.year,
+      eventLocal.month,
+      eventLocal.day,
+    ).subtract(Duration(days: offsetDays));
+
     final scheduled = tz.TZDateTime(
       tz.local,
-      remindLocalDate.year,
-      remindLocalDate.month,
-      remindLocalDate.day,
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
       9,
-      0,
     );
 
-    // for instant testing replace above scheduled var with below commented code
-    // final scheduled = tz.TZDateTime.now(tz.local).add(const Duration(minutes: 2));
-
-
-    // If it's already past, skip.
-    if (scheduled.isBefore(tz.TZDateTime.now(tz.local))) {
+    final nowLocal = tz.TZDateTime.now(tz.local);
+    if (!scheduled.isAfter(nowLocal)) {
+      if (kDebugMode) {
+        debugPrint(
+          '[Notif] Skipping past reminder at $scheduled for event=${eventUtc.toIso8601String()}',
+        );
+      }
       return null;
     }
     return scheduled;
@@ -150,46 +389,112 @@ class NotificationService {
       _channelId,
       _channelName,
       channelDescription: _channelDesc,
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
+      importance: Importance.max,
+      priority: Priority.high,
       icon: '@mipmap/ic_launcher',
     );
-
-    const iOS = DarwinNotificationDetails(
+    const ios = DarwinNotificationDetails(
       presentAlert: true,
-      presentSound: true,
       presentBadge: true,
+      presentSound: true,
     );
-
-    return const NotificationDetails(android: android, iOS: iOS);
+    return const NotificationDetails(android: android, iOS: ios);
   }
 
   int _notificationId(String eventId, int offsetDays) {
-    // Stable hash for eventId + offset
-    final base = eventId.hashCode ^ (offsetDays * 1315423911);
-    return base & 0x7fffffff; // positive int
+    return Object.hash(eventId, offsetDays) & 0x7fffffff;
   }
 
-  String _bodyForOffset(int offset, CountdownEvent e) {
-    if (offset <= 0) return 'Today is ${e.title}';
+  int _debugNotificationId(String eventId, Duration offset) {
+    return Object.hash(eventId, offset.inSeconds) ^ 0x59d2;
+  }
+
+  String _bodyForOffset(int offset, CountdownEvent event) {
+    if (offset <= 0) return 'Today is ${event.title}';
     if (offset == 1) return '1 day to go';
     if (offset == 3) return '3 days to go';
     if (offset == 7) return '1 week to go';
-    if (offset >= 30 && offset % 30 == 0) return '${(offset ~/ 30)} month(s) to go';
+    if (offset >= 30 && offset % 30 == 0) {
+      final months = offset ~/ 30;
+      return '$months month${months == 1 ? '' : 's'} to go';
+    }
     return '$offset days to go';
   }
 
   Future<void> _cancelKnown(CountdownEvent event) async {
-    for (final offset in event.reminderOffsets) {
-      final id = _notificationId(event.id, offset);
-      await _plugin.cancel(id);
+    final pending = await _plugin.pendingNotificationRequests();
+    for (final request in pending) {
+      if (request.payload == event.id) {
+        await _plugin.cancel(request.id);
+      }
     }
   }
 
   void _onTapNotification(NotificationResponse response) {
-    // NOTE: later we can deep-link to detail using response.payload (eventId)
-    if (kDebugMode) {
-      debugPrint('Tapped notification payload: ${response.payload}');
+    final eventId = response.payload;
+    if (eventId == null || eventId.isEmpty) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      rootNavigatorKey.currentState?.pushNamed(
+        Routes.countdownDetail,
+        arguments: eventId,
+      );
+    });
+  }
+
+  bool get _isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  Future<String?> _areNotificationsEnabled() async {
+    if (_isAndroid) {
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      final enabled = await androidPlugin?.areNotificationsEnabled();
+      return enabled?.toString();
     }
+
+    if (_isIOS) {
+      return 'requested';
+    }
+
+    return null;
+  }
+
+  String _formatOffset(Duration offset, {bool withGmt = true}) {
+    final sign = offset.isNegative ? '-' : '+';
+    final abs = offset.abs();
+    final hours = abs.inHours.toString().padLeft(2, '0');
+    final minutes = (abs.inMinutes % 60).toString().padLeft(2, '0');
+    final prefix = withGmt ? 'GMT' : '';
+    return '$prefix$sign$hours:$minutes';
+  }
+
+  String? _formatEtcName(Duration offset) {
+    if (offset.inMinutes % 60 != 0) return null;
+    final hours = offset.inHours.abs();
+    final sign = offset.isNegative ? '+' : '-';
+    return 'Etc/GMT$sign$hours';
+  }
+
+  String _formatTime(tz.TZDateTime time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
+  String? _findMatchingLocation(Duration offset) {
+    final utcNow = DateTime.now().toUtc();
+    for (final entry in tz.timeZoneDatabase.locations.entries) {
+      final location = entry.value;
+      final localTime = tz.TZDateTime.from(utcNow, location);
+      if (localTime.timeZoneOffset == offset) {
+        return entry.key;
+      }
+    }
+    return null;
   }
 }

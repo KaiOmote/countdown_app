@@ -1,8 +1,8 @@
-// countdown_app/lib/core/app.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/themes.dart';
 import 'navigation/routes.dart';
+import 'navigation/nav.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -16,6 +16,7 @@ class App extends StatelessWidget {
         darkTheme: darkTheme,
         routes: Routes.builders(),
         initialRoute: Routes.root,
+        navigatorKey: rootNavigatorKey, // ← enable global navigation
         debugShowCheckedModeBanner: false,
       ),
     );

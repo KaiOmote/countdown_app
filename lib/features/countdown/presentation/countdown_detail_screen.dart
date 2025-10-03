@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/navigation/routes.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
 import '../../../widgets/app_button.dart';
 import '../../countdown/providers.dart';
-import '../../../core/navigation/routes.dart';
 import '../../notifications/notification_service.dart';
 
 class CountdownDetailScreen extends ConsumerWidget {
@@ -15,8 +15,8 @@ class CountdownDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repo = ref.watch(countdownRepositoryProvider);
-    final list = repo.listAll();
-    final matches = list.where((e) => e.id == eventId).toList();
+    final events = repo.listAll();
+    final matches = events.where((e) => e.id == eventId).toList();
     if (matches.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Countdown Detail')),
@@ -30,13 +30,10 @@ class CountdownDetailScreen extends ConsumerWidget {
     final dateLabel = formatDateLocalized(event.dateUtc, locale);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Countdown Detail'),
-      ),
+      appBar: AppBar(title: const Text('Countdown Detail')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Big D-Day
           Center(
             child: Text(
               ddayText,
@@ -44,7 +41,6 @@ class CountdownDetailScreen extends ConsumerWidget {
             ),
           ),
           gap16,
-          // Title row
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -59,26 +55,23 @@ class CountdownDetailScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Center(
-            child: Text(dateLabel,
-                style: Theme.of(context).textTheme.bodyLarge),
+            child: Text(
+              dateLabel,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ),
           gap24,
-
-          // Reminders (if any)
           if (event.reminderOffsets.isNotEmpty) ...[
-            Text('Reminders',
-                style: Theme.of(context).textTheme.labelLarge),
+            Text('Reminders', style: Theme.of(context).textTheme.labelLarge),
             gap8,
             Wrap(
               spacing: 8,
               children: event.reminderOffsets
-                  .map((d) => Chip(label: Text(_labelForOffset(d))))
+                  .map((days) => Chip(label: Text(_labelForOffset(days))))
                   .toList(),
             ),
             gap24,
           ],
-
-          // Notes (if any)
           if (event.notes != null && event.notes!.isNotEmpty) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -86,21 +79,20 @@ class CountdownDetailScreen extends ConsumerWidget {
                 color: Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(event.notes!,
-                  style: Theme.of(context).textTheme.bodyLarge),
+              child: Text(
+                event.notes!,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
             gap24,
           ],
-
-          // Action buttons
           AppButton(
             label: 'Share',
             leading: Icons.share_outlined,
             style: AppButtonStyle.filled,
             onPressed: () {
-              // T8: real share. MVP: snackbar
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Share: ${event.title} • $dateLabel')),
+                SnackBar(content: Text('Share: ${event.title} - $dateLabel')),
               );
             },
           ),
@@ -117,7 +109,7 @@ class CountdownDetailScreen extends ConsumerWidget {
               );
               ref.invalidate(eventsListProvider);
               ref.invalidate(nearestUpcomingProvider);
-              if (context.mounted) Navigator.pop(context); // close detail after edit
+              if (context.mounted) Navigator.pop(context);
             },
           ),
           gap16,
@@ -126,30 +118,186 @@ class CountdownDetailScreen extends ConsumerWidget {
             leading: Icons.delete_outline,
             style: AppButtonStyle.outline,
             onPressed: () async {
-              final ok = await _confirmDelete(context);
-              if (ok) {
-                // Cancel any scheduled reminders for this event, then delete.
-                await NotificationService.instance
-                    .rescheduleForEvent(event.copyWith(reminderOffsets: const []));
-                await repo.remove(event.id);
+              final confirmed = await _confirmDelete(context);
+              if (!confirmed) return;
 
-                ref.invalidate(eventsListProvider);
-                ref.invalidate(nearestUpcomingProvider);
-                if (context.mounted) Navigator.pop(context);
-              }
+              await NotificationService.instance.rescheduleForEvent(
+                event.copyWith(reminderOffsets: const []),
+              );
+              await repo.remove(event.id);
+              ref.invalidate(eventsListProvider);
+              ref.invalidate(nearestUpcomingProvider);
+              if (context.mounted) Navigator.pop(context);
             },
           ),
+          gap24,
+          if (!bool.fromEnvironment('dart.vm.product')) ...[
+            const Divider(),
+            const Text(
+              'Debug Notifications',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            gap12,
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                AppButton(
+                  label: 'Show now',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showImmediateTest(
+                      event.id,
+                      event.title,
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Immediate notification shown'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'In 30 sec',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      event.id,
+                      event.title,
+                      event.dateUtc,
+                      const Duration(seconds: 30),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Scheduled in 30 sec')),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'In 1 min',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      event.id,
+                      event.title,
+                      event.dateUtc,
+                      const Duration(minutes: 1),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Scheduled in 1 min')),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'In 2 min',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      event.id,
+                      event.title,
+                      event.dateUtc,
+                      const Duration(minutes: 2),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Scheduled in 2 min')),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'In 3 min',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      event.id,
+                      event.title,
+                      event.dateUtc,
+                      const Duration(minutes: 3),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Scheduled in 3 min')),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'In 5 min',
+                  expanded: false,
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      event.id,
+                      event.title,
+                      event.dateUtc,
+                      const Duration(minutes: 5),
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Scheduled in 5 min')),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'Cancel debug',
+                  expanded: false,
+                  style: AppButtonStyle.outline,
+                  onPressed: () async {
+                    await NotificationService.instance.cancelDebugForEvent(
+                      event.id,
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Cancelled debug notifications'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                AppButton(
+                  label: 'Show status',
+                  expanded: false,
+                  style: AppButtonStyle.outline,
+                  onPressed: () async {
+                    final status = await NotificationService.instance
+                        .debugStatus();
+                    if (!context.mounted) return;
+                    await showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('Notification Status'),
+                        content: SingleChildScrollView(child: Text(status)),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  String _labelForOffset(int d) {
-    if (d == 1) return '1 day before';
-    if (d == 3) return '3 days before';
-    if (d == 7) return '1 week before';
-    if (d == 30) return '1 month before';
-    return '$d days before';
+  String _labelForOffset(int days) {
+    if (days == 1) return '1 day before';
+    if (days == 3) return '3 days before';
+    if (days == 7) return '1 week before';
+    if (days == 30) return '1 month before';
+    return '$days days before';
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
