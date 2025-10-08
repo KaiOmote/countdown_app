@@ -445,20 +445,20 @@ class NotificationService {
   bool get _isAndroid =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-  bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  bool get _isIOS =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
-  Future<String?> _areNotificationsEnabled() async {
+  Future<bool?> _areNotificationsEnabled() async {
     if (_isAndroid) {
-      final androidPlugin = _plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
-      final enabled = await androidPlugin?.areNotificationsEnabled();
-      return enabled?.toString();
+      final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      return androidPlugin?.areNotificationsEnabled();
     }
 
     if (_isIOS) {
-      return 'requested';
+      // Optional: implement iOS check if needed (Darwin plugin has limited support)
+      // Returning true means permissions were requested/granted earlier
+      return true;
     }
 
     return null;
