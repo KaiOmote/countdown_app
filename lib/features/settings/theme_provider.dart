@@ -29,5 +29,8 @@ class ThemeController extends StateNotifier<ThemeMode> {
     state = mode;
     final box = await Hive.openBox(_boxName);
     await box.put(_themeKey, mode.index);
+    debugPrint('[Theme] Switched to: $mode');
+
   }
+  
 }

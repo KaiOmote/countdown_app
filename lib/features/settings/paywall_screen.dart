@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/utils/gaps.dart';
-import '../../../widgets/app_button.dart';
+import '../../core/utils/gaps.dart';
+import '../../widgets/app_button.dart';
 
 class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});

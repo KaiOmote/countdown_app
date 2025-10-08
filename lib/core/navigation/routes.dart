@@ -8,7 +8,7 @@ import '../../features/countdown/presentation/countdown_detail_screen.dart';
 
 // Settings / Paywall
 import '../../features/settings/presentation/settings_screen.dart';
-import '../../features/settings/presentation/paywall_screen.dart';
+import '../../features/settings/paywall_screen.dart';
 
 class Routes {
   static const root = '/';
