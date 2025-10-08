@@ -7,9 +7,14 @@ import 'core/app.dart';
 import 'features/countdown/data/countdown_event.dart';
 import 'features/countdown/data/countdown_repository.dart';
 import 'features/notifications/notification_service.dart';
+import 'features/settings/iap_service.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Revenuecat
+  await IAPService.init();
 
   // Initialize notifications
   await NotificationService.instance.initialize();
