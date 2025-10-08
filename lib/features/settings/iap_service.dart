@@ -7,14 +7,19 @@ const kEntitlementPro = 'pro';
 const kProductIdPro = 'pro_lifetime_jp_1200';
 
 /// Riverpod provider exposing whether user owns Pro entitlement.
-final isProProvider = FutureProvider<bool>((ref) async {
-  try {
-    final info = await Purchases.getCustomerInfo();
-    return info.entitlements.active.containsKey(kEntitlementPro);
-  } catch (_) {
-    return false;
-  }
-});
+
+// for testing Pro functionality
+final isProProvider = FutureProvider<bool>((ref) async => true);
+
+
+// final isProProvider = FutureProvider<bool>((ref) async {
+//   try {
+//     final info = await Purchases.getCustomerInfo();
+//     return info.entitlements.active.containsKey(kEntitlementPro);
+//   } catch (_) {
+//     return false;
+//   }
+// });
 
 class IAPService {
   static Future<void> init() async {

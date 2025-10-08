@@ -10,6 +10,7 @@ import '../../countdown/providers.dart';
 import '../../countdown/data/countdown_event.dart';
 import '../../../core/navigation/routes.dart';
 import '../../notifications/notification_service.dart';
+import '../../settings/iap_service.dart';
 
 /// Route contract:
 /// - Create new: pushNamed(Routes.countdownAddEdit)
@@ -93,14 +94,17 @@ class _AddEditCountdownScreenState
       return;
     }
 
-    // Free tier caps
-    if (!_isEditing && list.length >= kFreeEventCap) {
+    // --- Free tier caps ---
+    final isPro = await ref.read(isProProvider.future);
+
+    if (!isPro && !_isEditing && list.length >= kFreeEventCap) {
       if (!mounted) return;
       Navigator.pushNamed(context, Routes.paywall);
       return;
     }
-    if (_reminders.length > 1) {
-      // Pro only: multiple reminders
+
+    // Pro-only: multiple reminders
+    if (!isPro && _reminders.length > 1) {
       if (!mounted) return;
       Navigator.pushNamed(context, Routes.paywall);
       return;
@@ -219,9 +223,28 @@ class _AddEditCountdownScreenState
               ),
               ActionChip(
                 label: const Text('+ Custom'),
-                onPressed: () {
-                  // Pro-gated (later implement a real custom offset dialog)
-                  Navigator.pushNamed(context, Routes.paywall);
+                onPressed: () async {
+                  final isPro = await ref.read(isProProvider.future);
+                  if (!mounted) return;
+
+                  if (!isPro) {
+                    Navigator.pushNamed(context, Routes.paywall);
+                    return;
+                  }
+
+                  // Pro: prompt for custom days
+                  final days = await _promptCustomReminder(context);
+                  if (days == null) return;
+                  if (days <= 0) {
+                    _snack('Please enter 1 or more days');
+                    return;
+                  }
+
+                  setState(() {
+                    if (!_reminders.contains(days)) {
+                      _reminders.add(days);
+                    }
+                  });
                 },
               ),
             ],
@@ -295,3 +318,35 @@ class _EmojiChip extends ConsumerWidget {
     );
   }
 }
+
+Future<int?> _promptCustomReminder(BuildContext context) async {
+  final controller = TextEditingController();
+  final value = await showDialog<int?>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('Custom reminder'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Days before event',
+            hintText: 'e.g. 10',
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              final parsed = int.tryParse(controller.text.trim());
+              Navigator.pop(ctx, parsed);
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      );
+    },
+  );
+  return value;
+}
+
