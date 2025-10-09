@@ -39,17 +39,11 @@ class PaywallScreen extends ConsumerWidget {
               height: 200,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFFFB3C7), Color(0xFFCFB7FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               ),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/paywall_hero.png',
-                  fit: BoxFit.contain,
-                ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                'assets/images/paywall_hero.png',
+                fit: BoxFit.cover, // fills the container neatly
               ),
             ),
             gap24,
