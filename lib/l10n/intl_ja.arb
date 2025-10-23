@@ -1,0 +1,12 @@
+{
+  "@@locale": "ja",
+  "appTitle": "カウントダウン",
+  "settings": "設定",
+  "addCountdown": "カウントダウンを追加",
+  "editCountdown": "カウントダウンを編集",
+  "upgradePro": "Pro にアップグレード",
+  "themeColor": "テーマカラー",
+  "language": "言語",
+  "daysRemaining": "{count, plural, one {残り # 日} other {残り # 日}}",
+  "enableReminders": "リマインダーを有効にする"
+}

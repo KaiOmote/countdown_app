@@ -30,6 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    # Optional:
+    # l10n:
+    #   arb-dir: lib/l10n
+    #   template-arb-file: intl_en.arb
+    #   output-localization-file: l10n.dart
   flutter_riverpod: ^2.4.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -56,6 +61,11 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
+  # l10n:
+  #   arb-dir: lib/l10n
+  #   template-arb-file: intl_en.arb
+  #   output-localization-file: l10n.dart
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -1,8 +1,10 @@
-<!-- countdown_app/docs/PLAN.md -->
 # Implementation Plan (Step-by-Step, Ordered)
 
+**Last updated:** 2025-10-23 (JST)
+
 This plan is the **single source of truth** for building the Countdown / Reminder Widget App.  
-Follow tasks **in order**. Each task block includes: Context + Files + Steps + Commands + Acceptance.
+Follow tasks **in order**. Each task block includes: Context + Files + Steps + Commands + Acceptance.  
+**Each task now also includes a Status badge.**
 
 > Conventions:  
 > - Use the locked structure in `FILE_STRUCTURE.md`.  
@@ -11,7 +13,7 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 > - Riverpod providers manage state.  
 > - Business logic stays in repositories/services (not in widgets).  
 > - Free users max **2 events**; Pro unlock removes the cap and ads.  
-> - iOS + Android widgets via `home_widget`.  
+> - ~~iOS + Android widgets via `home_widget`.~~ **(Skipped for MVP)**  
 > - Notifications via `flutter_local_notifications`.  
 > - RevenueCat for one-time Pro unlock (entitlement: `pro`).
 
@@ -20,6 +22,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 0. Project Bootstrap
 
 ### T0.1 - Create Project & Add Packages
+**Status:** ✅ Completed
+
 **Files**: `pubspec.yaml`
 
 **Steps**
@@ -56,6 +60,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 1. Core Scaffold & Theming
 
 ### T1.1 - Core Folders & App Shell
+**Status:** ✅ Completed
+
 **Files**
 - `lib/core/app.dart`
 - `lib/core/navigation/routes.dart`
@@ -92,6 +98,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 2. Data Model & Hive Persistence
 
 ### T2.1 - CountdownEvent Model + Hive Setup
+**Status:** ✅ Completed
+
 **Files**
 - `lib/features/countdown/data/countdown_event.dart`
 - `lib/features/countdown/data/countdown_repository.dart`
@@ -136,6 +144,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 3. Shared Widgets (UI Building Blocks)
 
 ### T3.1 - Reusable Components
+**Status:** ✅ Completed
+
 **Files**
 - `lib/widgets/countdown_card.dart`
 - `lib/widgets/app_button.dart`
@@ -154,6 +164,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 4. Main List Screen
 
 ### T4.1 - Countdown List UI + Navigation
+**Status:** ✅ Completed
+
 **Files**
 - `lib/features/countdown/presentation/countdown_list_screen.dart`
 - `lib/core/navigation/routes.dart`
@@ -175,6 +187,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 5. Add/Edit Screen
 
 ### T5.1 - Add/Edit Form & Validation
+**Status:** ✅ Completed
+
 **Files**
 - `lib/features/countdown/presentation/add_edit_countdown_screen.dart`
 - `lib/features/countdown/data/countdown_repository.dart`
@@ -204,6 +218,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 6. Detail Screen & Share
 
 ### T6.1 - Detail View (D-Day, Notes, Share)
+**Status:** ✅ Completed
+
 **Files**
 - `lib/features/countdown/presentation/countdown_detail_screen.dart`
 - `lib/core/utils/formatters.dart`
@@ -229,6 +245,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 7. Notifications
 
 ### T7.1 - Notification Service & Toggles
+**Status:** ✅ Completed
+
 **Files**
 - `lib/features/notifications/notification_service.dart`
 - `lib/features/countdown/presentation/countdown_detail_screen.dart`
@@ -252,51 +270,23 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 8. Home Screen Widgets
 
 ### T8.1 - Widget Service & Data Bridge
-**Files**
-- `lib/features/widgets/widget_service.dart`
-- `lib/features/countdown/providers.dart`
-
-**Steps**
-1. Implement service methods:
-   - `Future<void> pushNextEventToWidget(CountdownEvent? event)` saving `title`, `emoji`, `dateIso`, `daysRemaining` via `HomeWidget.saveWidgetData`.
-   - `Future<void> refreshWidgets()` calling `HomeWidget.updateWidget` for Android and triggering an iOS timeline reload.
-2. Listen to `nearestUpcomingProvider` and push updates whenever the events list changes.
-3. Stub platform configuration calls until native tasks below are ready.
-
-**Acceptance**
-- Service compiles and can be invoked without runtime errors (no-op until native widgets are configured).
+**Status:** ❌ Skipped for MVP (decision)
 
 ### T8.2 - Android Widget Provider
-**Files**
-- `android/app/src/main/AndroidManifest.xml`
-- Widget layout(s) under `android/app/src/main/res/layout/`
-- Widget provider class per `home_widget` documentation
-
-**Steps**
-1. Declare the widget provider in the manifest.
-2. Create widget layout XML (small and medium sizes).
-3. Wire update paths following `home_widget` setup guidance.
-
-**Acceptance**
-- On Android device/emulator, the widget can be added and shows placeholder content, updating after data push.
+**Status:** ❌ Skipped for MVP (decision)
 
 ### T8.3 - iOS Widget Extension
-**Files**
-- Xcode widget extension target and related Swift files
+**Status:** ❌ Skipped for MVP (decision)
 
-**Steps**
-1. Add a WidgetKit extension target in Xcode.
-2. Enable App Groups for the app and widget; use a shared group id (e.g., `group.com.your.bundle.countdown`).
-3. Implement a timeline provider that reads saved values via `HomeWidget`.
-
-**Acceptance**
-- On a physical iPhone, the widget can be placed and displays the nearest event.
+> Note: `home_widget` remains in dependencies for potential future use; no implementation required for MVP.
 
 ---
 
 ## 9. Settings, Theme, Language
 
 ### T9.1 - Theme Provider & Settings Screen
+**Status:** ✅ Completed (System/Light/Dark + language toggle)
+
 **Files**
 - `lib/features/settings/theme_provider.dart`
 - `lib/features/settings/presentation/settings_screen.dart`
@@ -314,37 +304,39 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 **Acceptance**
 - Settings screen opens; theme and language changes update the UI and persist across restarts.
 
+### T9.2 - Customizable Themes (Free seed color now; Pro presets later)
+**Status:** 🟡 In Progress
+
+**Scope for MVP (Free):**
+- Allow user to pick a **seed color**; persist it; rebuild themes from seed.
+
+**Post-launch (Pro):**
+- Unlock saved palettes / premium presets for Pro users (gated by entitlement when T10 is complete).
+
 ---
 
 ## 10. Paywall & Pro Entitlement
 
 ### T10.1 - RevenueCat Integration
+**Status:** ⏸ Deferred until after initial testing launch
+
 **Files**
 - `lib/features/settings/paywall_screen.dart`
 - `lib/features/settings/iap_service.dart`
 - `lib/features/countdown/presentation/add_edit_countdown_screen.dart`
 - `lib/core/utils/constants.dart`
 
-**Steps**
-1. In `constants.dart`, define:
-   - `const kEntitlementPro = 'pro';`
-   - Product identifiers (e.g., `pro_lifetime_jp_1200`).
-2. Implement `iap_service.dart`:
-   - Initialize the Purchases SDK.
-   - Provide `StreamProvider<bool> isProProvider`.
-   - Implement `Future<bool> purchasePro()` and `Future<void> restorePurchases()`.
-3. Build `paywall_screen.dart` with benefits list (unlimited events, no ads, premium themes) and pricing fetched from offerings (fallback to localized defaults).
-4. Hook Add/Edit flow to enforce the free cap: if not Pro and `currentCount >= kFreeEventCap`, navigate to `/settings/paywall`.
-
-**Acceptance**
-- Sandbox purchase flow works and updates `isProProvider` to `true` after purchase or restore.
-- Free cap is enforced before purchase and lifted afterward.
+**Notes**
+- Keep `kFreeEventCap = 2` enforcement in Add/Edit.  
+- UI may show paywall entry, but purchase flow is disabled until post-launch.
 
 ---
 
 ## 11. Localization (EN/JP)
 
-### T11.1 - i18n Setup
+### T11.1 - i18n Setup (gen-l10n)
+**Status:** 🟡 In Progress (strings not fully migrated)
+
 **Files**
 - `lib/l10n/intl_en.arb`
 - `lib/l10n/intl_ja.arb`
@@ -367,6 +359,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 12. Polish: Formatting, Edge Cases, Ads Toggle
 
 ### T12.1 - Formatters & D-Day Edge Cases
+**Status:** 🟡 In Progress
+
 **Files**
 - `lib/core/utils/formatters.dart`
 
@@ -380,6 +374,8 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 - D-Day labels match expectations for today/tomorrow/yesterday across locales.
 
 ### T12.2 - (Optional MVP) Ads Gate
+**Status:** ⏸ Deferred (optional for MVP)
+
 **Files**
 - `lib/core/services/ads_service.dart`
 - `lib/features/countdown/presentation/countdown_list_screen.dart`
@@ -396,25 +392,29 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 ## 13. QA & Release
 
 ### T13.1 - QA Pass
-**Checklist**
+**Status:** ⏳ Not Started
+
+**Checklist (widgets removed for MVP)**
 - Add, edit, delete events persist correctly.
 - D-Day remains accurate near midnight.
 - Notifications schedule and cancel as expected.
-- Widgets refresh after event changes.
-- Free cap enforced; paywall unlock works.
+- **Widgets: skipped in MVP.**
+- Free cap enforced (paywall purchase deferred for now).
 - English and Japanese strings present.
-- Dark, light, and pastel themes render as expected.
+- Dark, light, and seed-based theme render as expected.
 - Performance: list scrolls at 60fps on a mid-range Android device; app start < 1.5s on iPhone XR.
 
 ### T13.2 - Store Prep
+**Status:** ⏳ Not Started
+
 **Steps**
-1. Prepare app icon (1024px) and adaptive Android icons.
+1. Prepare app icon (1024px) and adaptive Android icons. **(✅ App icon done)**
 2. Capture JP & EN screenshots (light and dark themes).
 3. Write localized store descriptions.
 4. Document privacy (local-only storage) and notification permission rationale.
-5. Ensure RevenueCat products exist on both stores.
-6. Verify iOS widget extension and App Group configuration.
-7. Verify Android widget provider declaration.
+5. Ensure RevenueCat products exist on both stores. **(Deferred with T10)**
+6. ~~Verify iOS widget extension and App Group configuration.~~ **(Skipped)**
+7. ~~Verify Android widget provider declaration.~~ **(Skipped)**
 8. Bump build numbers; run release builds on physical devices.
 
 ---
@@ -439,7 +439,7 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 - `Future<void> scheduleEventReminders(CountdownEvent event)`
 - `Future<void> cancelEventReminders(String eventId)`
 
-**widget_service.dart**
+**widget_service.dart** *(MVP skipped; keep for future reference)*
 - `Future<void> pushNextEventToWidget(CountdownEvent? event)`
 - `Future<void> refreshWidgets()`
 
@@ -471,14 +471,10 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 
 ---
 
-## Appendix D - Widget Data Contract
+## Appendix D - Widgets (Deprecated for MVP)
 
-- Keys saved via `HomeWidget`:
-  - `nextEventTitle` (String)
-  - `nextEventEmoji` (String)
-  - `nextEventDateIso` (UTC ISO-8601 String)
-  - `nextEventDaysRemaining` (int)
-- Update on app start, add/edit/delete operations, and app resume.
+- **Status:** Skipped for MVP. Keep previous data contract notes for future post-MVP work.
+- Keys (for future): `nextEventTitle`, `nextEventEmoji`, `nextEventDateIso`, `nextEventDaysRemaining`.
 
 ---
 
@@ -498,9 +494,11 @@ Follow tasks **in order**. Each task block includes: Context + Files + Steps + C
 
 ## Definition of Done (MVP)
 
-- All tasks T0-T13 completed.
-- App runs without crashes on a physical iPhone and Android phone.
-- Widgets and notifications function for at least one test event.
-- Pro purchase works in sandbox.
-- Localization complete for JP/EN.
-- Store assets ready.
+- Tasks **T0–T7, T9.1**, **T9.2 (Free seed color)**, **T11**, **T12.1**, **T13** complete.  
+- App runs without crashes on a physical iPhone and Android phone.  
+- **Widgets intentionally excluded from MVP.**  
+- Pro purchase flow deferred; free cap enforced.  
+- Localization complete for JP/EN.  
+- Store assets ready.  
+- Splash screen displays correctly (✅ fixed).
+
