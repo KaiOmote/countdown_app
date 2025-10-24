@@ -1,82 +1,89 @@
 // lib/features/countdown/data/countdown_event.dart
 import 'package:flutter/foundation.dart';
-
-// --- Hive TypeAdapter (manual, no codegen) ---
 import 'package:hive/hive.dart';
 
 @immutable
 class CountdownEvent {
   final String id;
   final String title;
-  final DateTime date; // local date (midnight)
+  /// Store the target date in UTC (midnight UTC works fine for day math)
+  final DateTime dateUtc;
+  final String? emoji;
   final String? notes;
-  final bool remindersEnabled;
+  /// e.g. [1, 3, 7] means “remind 1/3/7 days before”
+  final List<int> reminderOffsets;
 
   const CountdownEvent({
     required this.id,
     required this.title,
-    required this.date,
+    required this.dateUtc,
+    this.emoji,
     this.notes,
-    this.remindersEnabled = false,
+    this.reminderOffsets = const [],
   });
-
-  // Compatibility for old code that referenced dateUtc/reminderOffsets:
-  DateTime get dateUtc => date.toUtc();
-  List<int> get reminderOffsets => const []; // extend later if you need multiple reminders
 
   CountdownEvent copyWith({
     String? id,
     String? title,
-    DateTime? date,
+    DateTime? dateUtc,
+    String? emoji,
     String? notes,
-    bool? remindersEnabled,
+    List<int>? reminderOffsets,
   }) {
     return CountdownEvent(
       id: id ?? this.id,
       title: title ?? this.title,
-      date: date ?? this.date,
+      dateUtc: dateUtc ?? this.dateUtc,
+      emoji: emoji ?? this.emoji,
       notes: notes ?? this.notes,
-      remindersEnabled: remindersEnabled ?? this.remindersEnabled,
+      reminderOffsets: reminderOffsets ?? this.reminderOffsets,
     );
   }
 
   Map<String, dynamic> toMap() => {
         'id': id,
         'title': title,
-        'date': date.toIso8601String(),
+        'dateUtc': dateUtc.toIso8601String(),
+        'emoji': emoji,
         'notes': notes,
-        'remindersEnabled': remindersEnabled,
+        'reminderOffsets': reminderOffsets,
       };
 
   factory CountdownEvent.fromMap(Map<String, dynamic> map) {
     return CountdownEvent(
       id: map['id'] as String,
       title: map['title'] as String,
-      date: DateTime.parse(map['date'] as String),
+      dateUtc: DateTime.parse(map['dateUtc'] as String),
+      emoji: map['emoji'] as String?,
       notes: map['notes'] as String?,
-      remindersEnabled: (map['remindersEnabled'] as bool?) ?? false,
+      reminderOffsets: (map['reminderOffsets'] as List?)?.map((e) => e as int).toList() ?? const [],
     );
   }
 }
 
+/// Manual Hive TypeAdapter (no build_runner needed)
 class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
   @override
-  final int typeId = 1; // keep stable
+  final int typeId = 1; // keep stable once shipped
 
   @override
   CountdownEvent read(BinaryReader r) {
     final id = r.readString();
     final title = r.readString();
-    final millis = r.readInt();
+    final epochMillisUtc = r.readInt();
+    final hasEmoji = r.readBool();
+    final emoji = hasEmoji ? r.readString() : null;
     final hasNotes = r.readBool();
     final notes = hasNotes ? r.readString() : null;
-    final remindersEnabled = r.readBool();
+    final len = r.readInt();
+    final offsets = List<int>.generate(len, (_) => r.readInt(), growable: false);
     return CountdownEvent(
       id: id,
       title: title,
-      date: DateTime.fromMillisecondsSinceEpoch(millis),
+      dateUtc: DateTime.fromMillisecondsSinceEpoch(epochMillisUtc, isUtc: true),
+      emoji: emoji,
       notes: notes,
-      remindersEnabled: remindersEnabled,
+      reminderOffsets: offsets,
     );
   }
 
@@ -84,9 +91,22 @@ class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
   void write(BinaryWriter w, CountdownEvent obj) {
     w.writeString(obj.id);
     w.writeString(obj.title);
-    w.writeInt(obj.date.millisecondsSinceEpoch);
-    w.writeBool(obj.notes != null);
-    if (obj.notes != null) w.writeString(obj.notes!);
-    w.writeBool(obj.remindersEnabled);
+    w.writeInt(obj.dateUtc.toUtc().millisecondsSinceEpoch);
+    if (obj.emoji == null) {
+      w.writeBool(false);
+    } else {
+      w.writeBool(true);
+      w.writeString(obj.emoji!);
+    }
+    if (obj.notes == null) {
+      w.writeBool(false);
+    } else {
+      w.writeBool(true);
+      w.writeString(obj.notes!);
+    }
+    w.writeInt(obj.reminderOffsets.length);
+    for (final o in obj.reminderOffsets) {
+      w.writeInt(o);
+    }
   }
 }

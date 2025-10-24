@@ -6,6 +6,9 @@ import '../../../core/navigation/routes.dart';
 import '../theme_provider.dart';
 import '../iap_service.dart';
 
+// NEW: language state (persisted in Hive via settings box)
+import '../language_provider.dart';
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -43,6 +46,16 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => Navigator.of(context).pushNamed(Routes.paywall),
             ),
     );
+
+    // 🔤 Language state (null = System default)
+    final locale = ref.watch(localeProvider);
+    final langCtrl = ref.read(localeProvider.notifier);
+
+    String currentLanguageLabel() {
+      if (locale == null) return 'System default';
+      if (locale.languageCode == 'ja') return '日本語';
+      return 'English';
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -82,6 +95,7 @@ class SettingsScreen extends ConsumerWidget {
               if (mode != null) controller.setTheme(mode);
             },
           ),
+
           // --- Theme Color (seed) ---
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -116,7 +130,6 @@ class SettingsScreen extends ConsumerWidget {
                         selected: _isSameColor(selected, c),
                         onTap: () => controller.setSeed(c),
                       ),
-                    // (Optional) add a "Custom…" button later if you want a full color picker.
                   ],
                 ),
               );
@@ -125,13 +138,72 @@ class SettingsScreen extends ConsumerWidget {
 
           const Divider(height: 32),
 
+          // --- Language (runtime switching with persistence) ---
           ListTile(
             title: const Text('Language'),
-            subtitle: const Text('English / 日本語'),
+            subtitle: Text(currentLanguageLabel()),
             trailing: const Icon(Icons.language),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Language toggle coming soon!')),
+              showModalBottomSheet<void>(
+                context: context,
+                showDragHandle: true,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (ctx) {
+                  final scheme = Theme.of(ctx).colorScheme;
+                  return SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text('Language', style: Theme.of(ctx).textTheme.titleMedium),
+                        ),
+                        const Divider(height: 0),
+                        RadioListTile<Locale?>(
+                          value: null,
+                          groupValue: locale,
+                          onChanged: (_) {
+                            langCtrl.setSystem();
+                            Navigator.pop(ctx);
+                          },
+                          title: const Text('System default'),
+                        ),
+                        const Divider(height: 0),
+                        RadioListTile<Locale?>(
+                          value: const Locale('en'),
+                          groupValue: locale,
+                          onChanged: (_) {
+                            langCtrl.setEnglish();
+                            Navigator.pop(ctx);
+                          },
+                          title: const Text('English'),
+                        ),
+                        const Divider(height: 0),
+                        RadioListTile<Locale?>(
+                          value: const Locale('ja'),
+                          groupValue: locale,
+                          onChanged: (_) {
+                            langCtrl.setJapanese();
+                            Navigator.pop(ctx);
+                          },
+                          title: const Text('日本語'),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            'Changes apply immediately and persist across app restarts.',
+                            style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               );
             },
           ),
@@ -195,4 +267,3 @@ class _ColorDot extends StatelessWidget {
     );
   }
 }
-

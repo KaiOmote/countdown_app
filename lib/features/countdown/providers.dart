@@ -1,28 +1,38 @@
 // lib/features/countdown/providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import '../countdown/data/countdown_event.dart';
-import '../countdown/data/countdown_repository.dart';
+import 'data/countdown_event.dart';
+import 'data/countdown_repository.dart';
 
+const _boxName = 'countdowns';
+
+/// The repo should be available because we open Hive box in main.dart before runApp.
 final countdownRepositoryProvider = Provider<CountdownRepository>((ref) {
-  if (Hive.isBoxOpen('countdowns')) {
-    return HiveCountdownRepository(Hive.box<CountdownEvent>('countdowns'));
+  if (!Hive.isBoxOpen(_boxName)) {
+    throw StateError('Hive box "$_boxName" is not open. Ensure Hive is initialized in main.dart before runApp.');
   }
-  return InMemoryCountdownRepository();
+  return HiveCountdownRepository(Hive.box<CountdownEvent>(_boxName));
 });
 
-class CountdownListNotifier extends StateNotifier<List<CountdownEvent>> {
-  CountdownListNotifier(this._repo) : super(_repo.getAll());
-  final CountdownRepository _repo;
+/// Plain list for UI (recomputes when ref.invalidate(eventsListProvider) is called)
+final eventsListProvider = Provider<List<CountdownEvent>>((ref) {
+  final repo = ref.watch(countdownRepositoryProvider);
+  return repo.listAll();
+});
 
-  void refresh() => state = _repo.getAll();
-  CountdownEvent? getById(String id) => _repo.getById(id);
-  CountdownEvent upsert(CountdownEvent e){ final s=_repo.upsert(e); refresh(); return s; }
-  void delete(String id){ _repo.delete(id); refresh(); }
-}
-
-final countdownListProvider =
-  StateNotifierProvider<CountdownListNotifier, List<CountdownEvent>>((ref) {
-    final repo = ref.watch(countdownRepositoryProvider);
-    return CountdownListNotifier(repo);
-  });
+/// The next upcoming event (>= today), or null if none.
+final nearestUpcomingProvider = Provider<CountdownEvent?>((ref) {
+  final list = ref.watch(eventsListProvider);
+  final now = DateTime.now().toUtc();
+  final today = DateTime.utc(now.year, now.month, now.day);
+  CountdownEvent? best;
+  for (final e in list) {
+    final d = DateTime.utc(e.dateUtc.year, e.dateUtc.month, e.dateUtc.day);
+    if (d.isBefore(today)) continue;
+    if (best == null ||
+        d.isBefore(DateTime.utc(best!.dateUtc.year, best!.dateUtc.month, best!.dateUtc.day))) {
+      best = e;
+    }
+  }
+  return best;
+});
