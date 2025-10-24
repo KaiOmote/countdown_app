@@ -7,6 +7,9 @@
   "upgradePro": "Pro にアップグレード",
   "themeColor": "テーマカラー",
   "language": "言語",
-  "daysRemaining": "{count, plural, one {残り # 日} other {残り # 日}}",
-  "enableReminders": "リマインダーを有効にする"
+  "enableReminders": "リマインダーを有効にする",
+
+  "dueToday": "今日",
+  "daysLeft": "{count, plural, one {あと # 日} other {あと # 日}}",
+  "daysAgo": "{count, plural, one {# 日前} other {# 日前}}"
 }

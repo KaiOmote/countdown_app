@@ -1,86 +1,92 @@
-// countdown_app/lib/features/countdown/data/countdown_event.dart
+// lib/features/countdown/data/countdown_event.dart
+import 'package:flutter/foundation.dart';
+
+// --- Hive TypeAdapter (manual, no codegen) ---
 import 'package:hive/hive.dart';
 
-// part 'countdown_event.g.dart'; // not generating code; adapter will be manual below (no build_runner required)
-
-@HiveType(typeId: 1)
+@immutable
 class CountdownEvent {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String title;
-  @HiveField(2)
-  final DateTime dateUtc; // must be UTC
-  @HiveField(3)
-  final String? emoji;
-  @HiveField(4)
+  final DateTime date; // local date (midnight)
   final String? notes;
-  @HiveField(5)
-  final List<int> reminderOffsets; // days before event
+  final bool remindersEnabled;
 
   const CountdownEvent({
     required this.id,
     required this.title,
-    required this.dateUtc,
-    this.emoji,
+    required this.date,
     this.notes,
-    this.reminderOffsets = const [],
+    this.remindersEnabled = false,
   });
+
+  // Compatibility for old code that referenced dateUtc/reminderOffsets:
+  DateTime get dateUtc => date.toUtc();
+  List<int> get reminderOffsets => const []; // extend later if you need multiple reminders
 
   CountdownEvent copyWith({
     String? id,
     String? title,
-    DateTime? dateUtc,
-    String? emoji,
+    DateTime? date,
     String? notes,
-    List<int>? reminderOffsets,
-  }) =>
-      CountdownEvent(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        dateUtc: dateUtc ?? this.dateUtc,
-        emoji: emoji ?? this.emoji,
-        notes: notes ?? this.notes,
-        reminderOffsets: reminderOffsets ?? this.reminderOffsets,
-      );
+    bool? remindersEnabled,
+  }) {
+    return CountdownEvent(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      date: date ?? this.date,
+      notes: notes ?? this.notes,
+      remindersEnabled: remindersEnabled ?? this.remindersEnabled,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'title': title,
+        'date': date.toIso8601String(),
+        'notes': notes,
+        'remindersEnabled': remindersEnabled,
+      };
+
+  factory CountdownEvent.fromMap(Map<String, dynamic> map) {
+    return CountdownEvent(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      date: DateTime.parse(map['date'] as String),
+      notes: map['notes'] as String?,
+      remindersEnabled: (map['remindersEnabled'] as bool?) ?? false,
+    );
+  }
 }
 
-// Manual TypeAdapter to avoid build_runner
 class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
   @override
-  final int typeId = 1;
+  final int typeId = 1; // keep stable
 
   @override
-  CountdownEvent read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
+  CountdownEvent read(BinaryReader r) {
+    final id = r.readString();
+    final title = r.readString();
+    final millis = r.readInt();
+    final hasNotes = r.readBool();
+    final notes = hasNotes ? r.readString() : null;
+    final remindersEnabled = r.readBool();
     return CountdownEvent(
-      id: fields[0] as String,
-      title: fields[1] as String,
-      dateUtc: fields[2] as DateTime,
-      emoji: fields[3] as String?,
-      notes: fields[4] as String?,
-      reminderOffsets: (fields[5] as List?)?.cast<int>() ?? const [],
+      id: id,
+      title: title,
+      date: DateTime.fromMillisecondsSinceEpoch(millis),
+      notes: notes,
+      remindersEnabled: remindersEnabled,
     );
   }
 
   @override
-  void write(BinaryWriter writer, CountdownEvent obj) {
-    writer
-      ..writeByte(6) // number of fields
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.title)
-      ..writeByte(2)
-      ..write(obj.dateUtc)
-      ..writeByte(3)
-      ..write(obj.emoji)
-      ..writeByte(4)
-      ..write(obj.notes)
-      ..writeByte(5)
-      ..write(obj.reminderOffsets);
+  void write(BinaryWriter w, CountdownEvent obj) {
+    w.writeString(obj.id);
+    w.writeString(obj.title);
+    w.writeInt(obj.date.millisecondsSinceEpoch);
+    w.writeBool(obj.notes != null);
+    if (obj.notes != null) w.writeString(obj.notes!);
+    w.writeBool(obj.remindersEnabled);
   }
 }

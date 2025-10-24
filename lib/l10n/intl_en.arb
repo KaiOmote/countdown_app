@@ -7,6 +7,9 @@
   "upgradePro": "Upgrade to Pro",
   "themeColor": "Theme color",
   "language": "Language",
-  "daysRemaining": "{count, plural, one {# day remaining} other {# days remaining}}",
-  "enableReminders": "Enable reminders"
+  "enableReminders": "Enable reminders",
+
+  "dueToday": "Today",
+  "daysLeft": "{count, plural, one {# day left} other {# days left}}",
+  "daysAgo": "{count, plural, one {# day ago} other {# days ago}}"
 }
