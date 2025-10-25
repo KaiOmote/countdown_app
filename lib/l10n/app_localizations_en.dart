@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editCountdown => 'Edit countdown';
 
   @override
+  String get edit => 'Edit';
+
+  @override
   String get selectDate => 'Select date';
 
   @override
@@ -192,4 +195,28 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 ago';
   }
+
+  @override
+  String get exampleEventHint => 'e.g. Birthday Party';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get iconLabel => 'Icon';
+
+  @override
+  String get egTen => 'e.g. 10';
+
+  @override
+  String get enterTitle => 'Please enter a title';
+
+  @override
+  String get chooseDate => 'Please choose a date';
+
+  @override
+  String get enterPositiveDays => 'Please enter 1 or more days';
+
+  @override
+  String get countdownAdded => 'Countdown added';
 }

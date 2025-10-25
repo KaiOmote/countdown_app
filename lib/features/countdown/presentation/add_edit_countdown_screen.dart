@@ -135,7 +135,7 @@ class _AddEditCountdownScreenState
     await NotificationService.instance.rescheduleForEvent(event);
 
     if (!mounted) return;
-    _snack(_isEditing ? s.savedChanges : s.countdownAdded);
+    _snack(_isEditing ? s.saveChanges : s.countdownAdded);
     Navigator.pop(context);
   }
 

@@ -48,6 +48,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get editCountdown => 'カウントダウンを編集';
 
   @override
+  String get edit => '編集';
+
+  @override
   String get selectDate => '日付を選択';
 
   @override
@@ -192,4 +195,28 @@ class AppLocalizationsJa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get exampleEventHint => '例: 誕生日パーティー';
+
+  @override
+  String get dateLabel => '日付';
+
+  @override
+  String get iconLabel => 'アイコン';
+
+  @override
+  String get egTen => '例: 10';
+
+  @override
+  String get enterTitle => 'タイトルを入力してください';
+
+  @override
+  String get chooseDate => '日付を選択してください';
+
+  @override
+  String get enterPositiveDays => '1以上の日数を入力してください';
+
+  @override
+  String get countdownAdded => 'カウントダウンを追加しました';
 }

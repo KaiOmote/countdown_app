@@ -14,6 +14,7 @@
 
   "addCountdown": "Add countdown",
   "editCountdown": "Edit countdown",
+  "edit": "Edit",
   "selectDate": "Select date",
   "notes": "Notes",
   "optionalNotes": "Optional notes",
@@ -57,5 +58,14 @@
 
   "dueToday": "Today",
   "daysLeft": "{count, plural, one {{count} day} other {{count} days}} left",
-  "daysAgo": "{count, plural, one {{count} day} other {{count} days}} ago"
+  "daysAgo": "{count, plural, one {{count} day} other {{count} days}} ago",
+
+  "exampleEventHint": "e.g. Birthday Party",
+  "dateLabel": "Date",
+  "iconLabel": "Icon",
+  "egTen": "e.g. 10",
+  "enterTitle": "Please enter a title",
+  "chooseDate": "Please choose a date",
+  "enterPositiveDays": "Please enter 1 or more days",
+  "countdownAdded": "Countdown added"
 }

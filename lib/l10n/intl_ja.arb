@@ -15,6 +15,7 @@
   "addCountdown": "カウントダウンを追加",
   "editCountdown": "カウントダウンを編集",
   "selectDate": "日付を選択",
+  "edit": "編集",
   "notes": "メモ",
   "optionalNotes": "任意のメモ",
   "createFirst": "最初のカウントダウンを作成しましょう。",
@@ -57,5 +58,14 @@
 
   "dueToday": "今日",
   "daysLeft": "{count, plural, one {残り{count}日} other {残り{count}日}}",
-  "daysAgo": "{count, plural, one {{count}日前} other {{count}日前}}"
+  "daysAgo": "{count, plural, one {{count}日前} other {{count}日前}}",
+
+  "exampleEventHint": "例: 誕生日パーティー",
+  "dateLabel": "日付",
+  "iconLabel": "アイコン",
+  "egTen": "例: 10",
+  "enterTitle": "タイトルを入力してください",
+  "chooseDate": "日付を選択してください",
+  "enterPositiveDays": "1以上の日数を入力してください",
+  "countdownAdded": "カウントダウンを追加しました"
 }

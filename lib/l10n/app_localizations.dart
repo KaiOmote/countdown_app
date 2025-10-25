@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Edit countdown'**
   String get editCountdown;
 
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
   /// No description provided for @selectDate.
   ///
   /// In en, this message translates to:
@@ -415,6 +421,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one {{count} day} other {{count} days}} ago'**
   String daysAgo(num count);
+
+  /// No description provided for @exampleEventHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Birthday Party'**
+  String get exampleEventHint;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @iconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get iconLabel;
+
+  /// No description provided for @egTen.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 10'**
+  String get egTen;
+
+  /// No description provided for @enterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title'**
+  String get enterTitle;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose a date'**
+  String get chooseDate;
+
+  /// No description provided for @enterPositiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter 1 or more days'**
+  String get enterPositiveDays;
+
+  /// No description provided for @countdownAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown added'**
+  String get countdownAdded;
 }
 
 class _AppLocalizationsDelegate
