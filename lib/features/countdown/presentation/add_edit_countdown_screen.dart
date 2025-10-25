@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
 
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
@@ -44,8 +45,7 @@ class _AddEditCountdownScreenState
     if (eventId != null && _editingEvent == null) {
       final repo = ref.read(countdownRepositoryProvider);
       final list = repo.listAll();
-      final match =
-          list.where((e) => e.id == eventId).toList(); // safe (no .firstOrNull)
+      final match = list.where((e) => e.id == eventId).toList();
       if (match.isNotEmpty) {
         _editingEvent = match.first;
         _title.text = _editingEvent!.title;
@@ -82,15 +82,16 @@ class _AddEditCountdownScreenState
   }
 
   Future<void> _save() async {
+    final s = AppLocalizations.of(context)!;
     final repo = ref.read(countdownRepositoryProvider);
     final list = repo.listAll();
 
     if (_title.text.trim().isEmpty) {
-      _snack('Please enter a title');
+      _snack(s.enterTitle);
       return;
     }
     if (_dateUtc == null) {
-      _snack('Please choose a date');
+      _snack(s.chooseDate);
       return;
     }
 
@@ -134,7 +135,7 @@ class _AddEditCountdownScreenState
     await NotificationService.instance.rescheduleForEvent(event);
 
     if (!mounted) return;
-    _snack(_isEditing ? 'Saved changes' : 'Countdown added');
+    _snack(_isEditing ? s.savedChanges : s.countdownAdded);
     Navigator.pop(context);
   }
 
@@ -155,10 +156,11 @@ class _AddEditCountdownScreenState
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).toLanguageTag();
+    final s = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Countdown' : 'New Countdown'),
+        title: Text(_isEditing ? s.editCountdownFull : s.newCountdown),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
@@ -169,8 +171,8 @@ class _AddEditCountdownScreenState
         children: [
           AppTextField(
             controller: _title,
-            label: 'Title',
-            hint: 'e.g. Birthday Party',
+            label: s.titleLabel,
+            hint: s.exampleEventHint,
             textInputAction: TextInputAction.next,
           ),
           gap16,
@@ -184,15 +186,15 @@ class _AddEditCountdownScreenState
                       ? ''
                       : formatDateLocalized(_dateUtc!, locale),
                 ),
-                label: 'Date',
-                hint: 'Select a date',
+                label: s.dateLabel,
+                hint: s.selectDate,
                 readOnly: true,
                 trailing: const Icon(Icons.calendar_today_outlined),
               ),
             ),
           ),
           gap16,
-          Text('Reminders', style: Theme.of(context).textTheme.labelLarge),
+          Text(s.reminders, style: Theme.of(context).textTheme.labelLarge),
           gap8,
           Wrap(
             spacing: 8,
@@ -222,7 +224,7 @@ class _AddEditCountdownScreenState
                 onTap: () => _toggleReminder(30),
               ),
               ActionChip(
-                label: const Text('+ Custom'),
+                label: Text(s.customPlus),
                 onPressed: () async {
                   final isPro = await ref.read(isProProvider.future);
                   if (!mounted) return;
@@ -236,7 +238,7 @@ class _AddEditCountdownScreenState
                   final days = await _promptCustomReminder(context);
                   if (days == null) return;
                   if (days <= 0) {
-                    _snack('Please enter 1 or more days');
+                    _snack(s.enterPositiveDays);
                     return;
                   }
 
@@ -250,7 +252,7 @@ class _AddEditCountdownScreenState
             ],
           ),
           gap16,
-          Text('Icon', style: Theme.of(context).textTheme.labelLarge),
+          Text(s.iconLabel, style: Theme.of(context).textTheme.labelLarge),
           gap8,
           Wrap(
             spacing: 8,
@@ -263,13 +265,13 @@ class _AddEditCountdownScreenState
           gap16,
           AppTextField(
             controller: _notes,
-            label: 'Notes',
-            hint: 'Optional notes…',
+            label: s.notes,
+            hint: s.optionalNotes,
             maxLines: 4,
           ),
           gap24,
           AppButton(
-            label: _isEditing ? 'Save Changes' : 'Save Countdown',
+            label: s.saveCountdown, // one label for both add/edit (safer)
             onPressed: _save,
           ),
         ],
@@ -324,24 +326,25 @@ Future<int?> _promptCustomReminder(BuildContext context) async {
   final value = await showDialog<int?>(
     context: context,
     builder: (ctx) {
+      final s = AppLocalizations.of(ctx)!;
       return AlertDialog(
-        title: const Text('Custom reminder'),
+        title: Text(s.customReminder),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Days before event',
-            hintText: 'e.g. 10',
+          decoration: InputDecoration(
+            labelText: s.daysBeforeEvent(0), // caption label; 0 is ignored by users
+            hintText: s.egTen,
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, null), child: Text(s.cancel)),
           TextButton(
             onPressed: () {
               final parsed = int.tryParse(controller.text.trim());
               Navigator.pop(ctx, parsed);
             },
-            child: const Text('Add'),
+            child: Text(s.add),
           ),
         ],
       );
@@ -349,4 +352,3 @@ Future<int?> _promptCustomReminder(BuildContext context) async {
   );
   return value;
 }
-

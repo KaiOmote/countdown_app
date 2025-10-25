@@ -34,6 +34,7 @@
   "newCountdown": "New Countdown",
   "editCountdownFull": "Edit Countdown",
   "saveCountdown": "Save Countdown",
+  "saveChanges": "Save Changes",
   "reminders": "Reminders",
   "daysBeforeEvent": "Days before event",
   "customReminder": "Custom reminder",
@@ -45,6 +46,7 @@
   "cancel": "Cancel",
   "delete": "Delete",
   "countdownDetail": "Countdown Detail",
+  "eventNotFound": "Event not found",
   "notificationStatus": "Notification Status",
   "ok": "OK",
   "share": "Share",
@@ -54,6 +56,6 @@
   "scheduledInSeconds": "Scheduled in {seconds} sec",
 
   "dueToday": "Today",
-  "daysLeft": "{count, plural, one {# day} other {# days}} left",
-  "daysAgo": "{count, plural, one {# day} other {# days}} ago"
+  "daysLeft": "{count, plural, one {{count} day} other {{count} days}} left",
+  "daysAgo": "{count, plural, one {{count} day} other {{count} days}} ago"
 }

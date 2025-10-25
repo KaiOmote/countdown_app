@@ -99,6 +99,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveCountdown => 'Save Countdown';
 
   @override
+  String get saveChanges => 'Save Changes';
+
+  @override
   String get reminders => 'Reminders';
 
   @override
@@ -132,6 +135,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get countdownDetail => 'Countdown Detail';
+
+  @override
+  String get eventNotFound => 'Event not found';
 
   @override
   String get notificationStatus => 'Notification Status';
@@ -170,8 +176,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# days',
-      one: '# day',
+      other: '$count days',
+      one: '$count day',
     );
     return '$_temp0 left';
   }
@@ -181,8 +187,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# days',
-      one: '# day',
+      other: '$count days',
+      one: '$count day',
     );
     return '$_temp0 ago';
   }

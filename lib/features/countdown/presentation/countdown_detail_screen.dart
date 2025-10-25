@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
+
 
 import '../../../core/navigation/routes.dart';
 import '../../../core/utils/formatters.dart';
@@ -17,10 +19,13 @@ class CountdownDetailScreen extends ConsumerWidget {
     final repo = ref.watch(countdownRepositoryProvider);
     final events = repo.listAll();
     final matches = events.where((e) => e.id == eventId).toList();
+    //s var for localization
+    final s = AppLocalizations.of(context)!;
+
     if (matches.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Countdown Detail')),
-        body: const Center(child: Text('Event not found')),
+        appBar: AppBar(title: Text(s.countdownDetail)),
+        body: Center(child: Text(s.eventNotFound)),
       );
     }
     final event = matches.first;

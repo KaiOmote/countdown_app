@@ -278,6 +278,12 @@ abstract class AppLocalizations {
   /// **'Save Countdown'**
   String get saveCountdown;
 
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
   /// No description provided for @reminders.
   ///
   /// In en, this message translates to:
@@ -344,6 +350,12 @@ abstract class AppLocalizations {
   /// **'Countdown Detail'**
   String get countdownDetail;
 
+  /// No description provided for @eventNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Event not found'**
+  String get eventNotFound;
+
   /// No description provided for @notificationStatus.
   ///
   /// In en, this message translates to:
@@ -395,13 +407,13 @@ abstract class AppLocalizations {
   /// No description provided for @daysLeft.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one {# day} other {# days}} left'**
+  /// **'{count, plural, one {{count} day} other {{count} days}} left'**
   String daysLeft(num count);
 
   /// No description provided for @daysAgo.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one {# day} other {# days}} ago'**
+  /// **'{count, plural, one {{count} day} other {{count} days}} ago'**
   String daysAgo(num count);
 }
 

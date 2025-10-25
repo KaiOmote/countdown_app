@@ -34,6 +34,7 @@
   "newCountdown": "新しいカウントダウン",
   "editCountdownFull": "カウントダウンを編集",
   "saveCountdown": "保存",
+  "saveChanges": "保存",
   "reminders": "リマインダー",
   "daysBeforeEvent": "イベントの{days}日前",
   "customReminder": "カスタムリマインダー",
@@ -45,6 +46,7 @@
   "cancel": "キャンセル",
   "delete": "削除",
   "countdownDetail": "カウントダウン詳細",
+  "eventNotFound": "イベントが見つかりません",
   "notificationStatus": "通知の状態",
   "ok": "OK",
   "share": "共有",
@@ -54,6 +56,6 @@
   "scheduledInSeconds": "{seconds}秒後に通知",
 
   "dueToday": "今日",
-  "daysLeft": "{count, plural, one {残り # 日} other {残り # 日}}",
-  "daysAgo": "{count, plural, one {# 日前} other {# 日前}}"
+  "daysLeft": "{count, plural, one {残り{count}日} other {残り{count}日}}",
+  "daysAgo": "{count, plural, one {{count}日前} other {{count}日前}}"
 }
