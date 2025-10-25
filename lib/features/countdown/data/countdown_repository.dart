@@ -1,40 +1,50 @@
-// countdown_app/lib/features/countdown/data/countdown_repository.dart
+// lib/features/countdown/data/countdown_repository.dart
+import 'dart:math';
 import 'package:hive/hive.dart';
 import 'countdown_event.dart';
 
-class CountdownRepository {
-  static const String boxName = 'eventsBox';
+abstract class CountdownRepository {
+  /// Synchronous list for your UI (you invalidate providers after writes)
+  List<CountdownEvent> listAll();
+
+  Future<void> add(CountdownEvent event);
+  Future<void> update(CountdownEvent event);
+  Future<void> remove(String id);
+}
+
+class HiveCountdownRepository implements CountdownRepository {
+  HiveCountdownRepository(this._box);
   final Box<CountdownEvent> _box;
 
-  CountdownRepository(this._box);
-
+  @override
   List<CountdownEvent> listAll() {
-    final items = _box.values.toList();
-    items.sort((a, b) => a.dateUtc.compareTo(b.dateUtc));
-    return items;
+    final list = _box.values.toList();
+    list.sort((a, b) => a.dateUtc.compareTo(b.dateUtc));
+    return list;
   }
 
-  Future<void> add(CountdownEvent e) async {
-    await _box.put(e.id, e);
+  @override
+  Future<void> add(CountdownEvent event) async {
+    final saved = event.id.isEmpty ? event.copyWith(id: _genId()) : event;
+    await _box.put(saved.id, saved);
   }
 
-  Future<void> update(CountdownEvent e) async {
-    await _box.put(e.id, e);
+  @override
+  Future<void> update(CountdownEvent event) async {
+    if (event.id.isEmpty) {
+      throw ArgumentError('event.id must not be empty for update');
+    }
+    await _box.put(event.id, event);
   }
 
+  @override
   Future<void> remove(String id) async {
     await _box.delete(id);
   }
 
-  CountdownEvent? nearestUpcoming(DateTime nowUtc) {
-    CountdownEvent? best;
-    for (final e in _box.values) {
-      if (e.dateUtc.isAfter(nowUtc)) {
-        if (best == null || e.dateUtc.isBefore(best!.dateUtc)) {
-          best = e;
-        }
-      }
-    }
-    return best;
+  String _genId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final r = Random();
+    return List.generate(12, (_) => chars[r.nextInt(chars.length)]).join();
   }
 }

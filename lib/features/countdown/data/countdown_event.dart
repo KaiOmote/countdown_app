@@ -1,22 +1,17 @@
-// countdown_app/lib/features/countdown/data/countdown_event.dart
+// lib/features/countdown/data/countdown_event.dart
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
-// part 'countdown_event.g.dart'; // not generating code; adapter will be manual below (no build_runner required)
-
-@HiveType(typeId: 1)
+@immutable
 class CountdownEvent {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final String title;
-  @HiveField(2)
-  final DateTime dateUtc; // must be UTC
-  @HiveField(3)
+  /// Store the target date in UTC (midnight UTC works fine for day math)
+  final DateTime dateUtc;
   final String? emoji;
-  @HiveField(4)
   final String? notes;
-  @HiveField(5)
-  final List<int> reminderOffsets; // days before event
+  /// e.g. [1, 3, 7] means “remind 1/3/7 days before”
+  final List<int> reminderOffsets;
 
   const CountdownEvent({
     required this.id,
@@ -34,53 +29,84 @@ class CountdownEvent {
     String? emoji,
     String? notes,
     List<int>? reminderOffsets,
-  }) =>
-      CountdownEvent(
-        id: id ?? this.id,
-        title: title ?? this.title,
-        dateUtc: dateUtc ?? this.dateUtc,
-        emoji: emoji ?? this.emoji,
-        notes: notes ?? this.notes,
-        reminderOffsets: reminderOffsets ?? this.reminderOffsets,
-      );
+  }) {
+    return CountdownEvent(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      dateUtc: dateUtc ?? this.dateUtc,
+      emoji: emoji ?? this.emoji,
+      notes: notes ?? this.notes,
+      reminderOffsets: reminderOffsets ?? this.reminderOffsets,
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'title': title,
+        'dateUtc': dateUtc.toIso8601String(),
+        'emoji': emoji,
+        'notes': notes,
+        'reminderOffsets': reminderOffsets,
+      };
+
+  factory CountdownEvent.fromMap(Map<String, dynamic> map) {
+    return CountdownEvent(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      dateUtc: DateTime.parse(map['dateUtc'] as String),
+      emoji: map['emoji'] as String?,
+      notes: map['notes'] as String?,
+      reminderOffsets: (map['reminderOffsets'] as List?)?.map((e) => e as int).toList() ?? const [],
+    );
+  }
 }
 
-// Manual TypeAdapter to avoid build_runner
+/// Manual Hive TypeAdapter (no build_runner needed)
 class CountdownEventAdapter extends TypeAdapter<CountdownEvent> {
   @override
-  final int typeId = 1;
+  final int typeId = 1; // keep stable once shipped
 
   @override
-  CountdownEvent read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
+  CountdownEvent read(BinaryReader r) {
+    final id = r.readString();
+    final title = r.readString();
+    final epochMillisUtc = r.readInt();
+    final hasEmoji = r.readBool();
+    final emoji = hasEmoji ? r.readString() : null;
+    final hasNotes = r.readBool();
+    final notes = hasNotes ? r.readString() : null;
+    final len = r.readInt();
+    final offsets = List<int>.generate(len, (_) => r.readInt(), growable: false);
     return CountdownEvent(
-      id: fields[0] as String,
-      title: fields[1] as String,
-      dateUtc: fields[2] as DateTime,
-      emoji: fields[3] as String?,
-      notes: fields[4] as String?,
-      reminderOffsets: (fields[5] as List?)?.cast<int>() ?? const [],
+      id: id,
+      title: title,
+      dateUtc: DateTime.fromMillisecondsSinceEpoch(epochMillisUtc, isUtc: true),
+      emoji: emoji,
+      notes: notes,
+      reminderOffsets: offsets,
     );
   }
 
   @override
-  void write(BinaryWriter writer, CountdownEvent obj) {
-    writer
-      ..writeByte(6) // number of fields
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.title)
-      ..writeByte(2)
-      ..write(obj.dateUtc)
-      ..writeByte(3)
-      ..write(obj.emoji)
-      ..writeByte(4)
-      ..write(obj.notes)
-      ..writeByte(5)
-      ..write(obj.reminderOffsets);
+  void write(BinaryWriter w, CountdownEvent obj) {
+    w.writeString(obj.id);
+    w.writeString(obj.title);
+    w.writeInt(obj.dateUtc.toUtc().millisecondsSinceEpoch);
+    if (obj.emoji == null) {
+      w.writeBool(false);
+    } else {
+      w.writeBool(true);
+      w.writeString(obj.emoji!);
+    }
+    if (obj.notes == null) {
+      w.writeBool(false);
+    } else {
+      w.writeBool(true);
+      w.writeString(obj.notes!);
+    }
+    w.writeInt(obj.reminderOffsets.length);
+    for (final o in obj.reminderOffsets) {
+      w.writeInt(o);
+    }
   }
 }

@@ -5,46 +5,33 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/app.dart';
 import 'features/countdown/data/countdown_event.dart';
-import 'features/countdown/data/countdown_repository.dart';
-import 'features/notifications/notification_service.dart';
-import 'features/settings/iap_service.dart';
 
+const _countdownsBox = 'countdowns';
+const _settingsBox = 'settings';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Revenuecat
-  await IAPService.init();
-
-  // Initialize notifications
-  await NotificationService.instance.initialize();
-  await NotificationService.instance.ensurePermissions();
-
-  // Initialize Hive and boxes
+Future<void> _initHive() async {
   await Hive.initFlutter();
   Hive.registerAdapter(CountdownEventAdapter());
-  await Hive.openBox<CountdownEvent>(CountdownRepository.boxName);
 
-  // Add demo event if box is empty
-  final box = Hive.box<CountdownEvent>(CountdownRepository.boxName);
-  if (box.isEmpty) {
-    box.put(
-      'demo1',
-      CountdownEvent(
-        id: 'demo1',
-        title: 'Demo Event',
-        dateUtc: DateTime.now().toUtc().add(const Duration(days: 3)),
-        emoji: null,
-        notes: 'This is a demo entry.',
-        reminderOffsets: const [1],
-      ),
-    );
+  // Open countdowns box; nuke only if corrupt (dev safety)
+  try {
+    await Hive.openBox<CountdownEvent>(_countdownsBox);
+  } catch (_) {
+    await Hive.deleteBoxFromDisk(_countdownsBox);
+    await Hive.openBox<CountdownEvent>(_countdownsBox);
   }
 
-  // ✅ Wrap in ProviderScope for Riverpod
-  runApp(
-    const ProviderScope(
-      child: App(),
-    ),
-  );
+  // Open settings box (dynamic, no adapters needed)
+  try {
+    await Hive.openBox(_settingsBox);
+  } catch (_) {
+    await Hive.deleteBoxFromDisk(_settingsBox);
+    await Hive.openBox(_settingsBox);
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await _initHive();
+  runApp(const ProviderScope(child: App()));
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
+
 
 import '../../../core/navigation/routes.dart';
 import '../../../core/utils/formatters.dart';
@@ -17,20 +19,23 @@ class CountdownDetailScreen extends ConsumerWidget {
     final repo = ref.watch(countdownRepositoryProvider);
     final events = repo.listAll();
     final matches = events.where((e) => e.id == eventId).toList();
+    //s var for localization
+    final s = AppLocalizations.of(context)!;
+
     if (matches.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Countdown Detail')),
-        body: const Center(child: Text('Event not found')),
+        appBar: AppBar(title: Text(s.countdownDetail)),
+        body: Center(child: Text(s.eventNotFound)),
       );
     }
     final event = matches.first;
 
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final ddayText = formatDDayLabel(event.dateUtc, DateTime.now(), locale);
+    final ddayText = formatDDayLabelL10n(event.dateUtc, DateTime.now(), context);
     final dateLabel = formatDateLocalized(event.dateUtc, locale);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Countdown Detail')),
+      appBar: AppBar(title: Text(s.countdownDetail)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -87,18 +92,20 @@ class CountdownDetailScreen extends ConsumerWidget {
             gap24,
           ],
           AppButton(
-            label: 'Share',
+            label: s.share,
             leading: Icons.share_outlined,
             style: AppButtonStyle.filled,
             onPressed: () {
+              final localeTag = Localizations.localeOf(context).toLanguageTag();
+              final formattedDate = formatDateLocalized(event.dateUtc, localeTag);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Share: ${event.title} - $dateLabel')),
+                SnackBar(content: Text(s.shareTitleDate(event.title, formattedDate))),
               );
             },
           ),
           gap16,
           AppButton(
-            label: 'Edit',
+            label: s.edit,
             leading: Icons.edit_outlined,
             style: AppButtonStyle.tonal,
             onPressed: () async {
@@ -114,7 +121,7 @@ class CountdownDetailScreen extends ConsumerWidget {
           ),
           gap16,
           AppButton(
-            label: 'Delete',
+            label: s.delete,
             leading: Icons.delete_outline,
             style: AppButtonStyle.outline,
             onPressed: () async {
@@ -272,12 +279,12 @@ class CountdownDetailScreen extends ConsumerWidget {
                     await showDialog(
                       context: context,
                       builder: (_) => AlertDialog(
-                        title: const Text('Notification Status'),
+                        title: Text(s.notificationStatus),
                         content: SingleChildScrollView(child: Text(status)),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('OK'),
+                            child: Text(s.ok),
                           ),
                         ],
                       ),
@@ -303,21 +310,26 @@ class CountdownDetailScreen extends ConsumerWidget {
   Future<bool> _confirmDelete(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete countdown?'),
-        content: const Text('This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (dialogCtx) {
+        // Get localizations from the *builder* context
+        final s = AppLocalizations.of(dialogCtx)!;
+        return AlertDialog(
+          title: Text(s.deleteCountdownQ),      // no const with s
+          content: Text(s.cannotBeUndone),      // no const with s
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx, false),
+              child: Text(s.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx, true),
+              child: Text(s.delete),
+            ),
+          ],
+        );
+      },
     );
     return result ?? false;
   }
+
 }
