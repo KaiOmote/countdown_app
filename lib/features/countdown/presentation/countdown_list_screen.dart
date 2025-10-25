@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
+
 
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
@@ -24,6 +26,9 @@ Widget build(BuildContext context, WidgetRef ref) {
   final locale = Localizations.localeOf(context).toLanguageTag();
   final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
   final isProAsync = ref.watch(isProProvider);
+  // s var for localization
+  final s = AppLocalizations.of(context)!;
+
 
   // Plain List<CountdownEvent>
   final events = ref.watch(eventsListProvider);
@@ -48,7 +53,7 @@ Widget build(BuildContext context, WidgetRef ref) {
 
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Countdowns'),
+      title: const Text(s.appTitle),
       actions: [
         if (isIOS)
           IconButton(
@@ -59,7 +64,7 @@ Widget build(BuildContext context, WidgetRef ref) {
               ref.invalidate(eventsListProvider);
               ref.invalidate(nearestUpcomingProvider);
             },
-            tooltip: 'New Countdown',
+            tooltip: s.newCountdownapp,
           ),
         IconButton(
           icon: const Icon(Icons.settings),
@@ -80,7 +85,7 @@ Widget build(BuildContext context, WidgetRef ref) {
                 ),
                 gap16,
                 AppButton(
-                  label: 'New Countdown',
+                  label: s.newCountdown,
                   leading: Icons.add,
                   onPressed: () async {
                     await Navigator.pushNamed(context, Routes.countdownAddEdit);
@@ -115,11 +120,14 @@ Widget build(BuildContext context, WidgetRef ref) {
                 ),
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) => _handleMenu(context, ref, value, e),
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete')),
-                    PopupMenuItem(value: 'share', child: Text('Share')),
-                  ],
+                  itemBuilder: (ctx) {
+                    final s = AppLocalizations.of(ctx)!;
+                    return [
+                      PopupMenuItem(value: 'edit', child: Text(s.editCountdown)),
+                      PopupMenuItem(value: 'delete', child: Text(s.delete)),
+                      PopupMenuItem(value: 'share', child: const Text(s.share)), 
+                    ];
+                  },
                 ),
               );
             },
@@ -140,12 +148,15 @@ Widget build(BuildContext context, WidgetRef ref) {
 }
 
   void _handleMenu(BuildContext context, WidgetRef ref, String value, CountdownEvent e) async {
+    final s = AppLocalizations.of(context)!; // <-- bring s into scope here
+
     switch (value) {
       case 'edit':
         await Navigator.pushNamed(context, Routes.countdownAddEdit, arguments: e.id);
         ref.invalidate(eventsListProvider);
         ref.invalidate(nearestUpcomingProvider);
         break;
+
       case 'delete':
         final ok = await _confirmDelete(context);
         if (ok) {
@@ -155,13 +166,18 @@ Widget build(BuildContext context, WidgetRef ref) {
           await ref.read(countdownRepositoryProvider).remove(e.id);
           ref.invalidate(eventsListProvider);
           ref.invalidate(nearestUpcomingProvider);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Deleted')));
+
+          // 🔴 remove `const` so we can use s
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(s.deleted)),
+          );
         }
         break;
+
       case 'share':
-        // T8 will implement real share. For now, simple placeholder.
+        // Placeholder
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Share: ${e.title} • ${e.dateUtc.toIso8601String()}')),
+          SnackBar(content: Text(s.shareTitleIso(e.title, e.dateUtc.toIso8601String()))),
         );
         break;
     }
@@ -171,11 +187,11 @@ Widget build(BuildContext context, WidgetRef ref) {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete countdown?'),
-        content: const Text('This action cannot be undone.'),
+        title: Text(s.deleteCountdownQ)
+        content: Text(s.cannotBeUndone),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(s.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text(s.delete)),
         ],
       ),
     );

@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Countdown'**
+  /// **'Countdowns'**
   String get appTitle;
 
   /// No description provided for @settings.
@@ -109,6 +109,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get languageSystem;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageJapanese.
+  ///
+  /// In en, this message translates to:
+  /// **'日本語'**
+  String get languageJapanese;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme color'**
+  String get themeColor;
 
   /// No description provided for @addCountdown.
   ///
@@ -122,29 +176,215 @@ abstract class AppLocalizations {
   /// **'Edit countdown'**
   String get editCountdown;
 
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// No description provided for @notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notes;
+
+  /// No description provided for @optionalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional notes'**
+  String get optionalNotes;
+
+  /// No description provided for @createFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first countdown to get started.'**
+  String get createFirst;
+
+  /// No description provided for @notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get notFound;
+
   /// No description provided for @upgradePro.
   ///
   /// In en, this message translates to:
   /// **'Upgrade to Pro'**
   String get upgradePro;
 
-  /// No description provided for @themeColor.
+  /// No description provided for @proThanks.
   ///
   /// In en, this message translates to:
-  /// **'Theme color'**
-  String get themeColor;
+  /// **'You’re Pro! 🎉'**
+  String get proThanks;
 
-  /// No description provided for @language.
+  /// No description provided for @proThanksSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Language'**
-  String get language;
+  /// **'Thank you for supporting the app'**
+  String get proThanksSubtitle;
 
-  /// No description provided for @enableReminders.
+  /// No description provided for @proChecking.
   ///
   /// In en, this message translates to:
-  /// **'Enable reminders'**
-  String get enableReminders;
+  /// **'Checking Pro status…'**
+  String get proChecking;
+
+  /// No description provided for @proStatusUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Status unavailable — tap to manage'**
+  String get proStatusUnavailable;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersion;
+
+  /// No description provided for @mvp.
+  ///
+  /// In en, this message translates to:
+  /// **'1.0.0 (MVP)'**
+  String get mvp;
+
+  /// No description provided for @titleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get titleLabel;
+
+  /// No description provided for @newCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'New Countdown'**
+  String get newCountdown;
+
+  /// No description provided for @editCountdownFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Countdown'**
+  String get editCountdownFull;
+
+  /// No description provided for @saveCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Countdown'**
+  String get saveCountdown;
+
+  /// No description provided for @reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get reminders;
+
+  /// No description provided for @daysBeforeEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Days before event'**
+  String daysBeforeEvent(Object days);
+
+  /// No description provided for @customReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom reminder'**
+  String get customReminder;
+
+  /// No description provided for @customPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'+ Custom'**
+  String get customPlus;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// No description provided for @deleteCountdownQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete countdown?'**
+  String get deleteCountdownQ;
+
+  /// No description provided for @cannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get cannotBeUndone;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @countdownDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown Detail'**
+  String get countdownDetail;
+
+  /// No description provided for @notificationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Status'**
+  String get notificationStatus;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @shareTitleDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Share: {title} - {date}'**
+  String shareTitleDate(Object date, Object title);
+
+  /// No description provided for @shareTitleIso.
+  ///
+  /// In en, this message translates to:
+  /// **'Share: {title} • {dateIso}'**
+  String shareTitleIso(Object dateIso, Object title);
+
+  /// No description provided for @scheduledInMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled in {minutes} min'**
+  String scheduledInMinutes(Object minutes);
+
+  /// No description provided for @scheduledInSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled in {seconds} sec'**
+  String scheduledInSeconds(Object seconds);
 
   /// No description provided for @dueToday.
   ///
@@ -155,13 +395,13 @@ abstract class AppLocalizations {
   /// No description provided for @daysLeft.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one {# day left} other {# days left}}'**
+  /// **'{count, plural, one {# day} other {# days}} left'**
   String daysLeft(num count);
 
   /// No description provided for @daysAgo.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one {# day ago} other {# days ago}}'**
+  /// **'{count, plural, one {# day} other {# days}} ago'**
   String daysAgo(num count);
 }
 
