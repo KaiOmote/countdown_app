@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:countdown_app/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
-
 import '../../../core/navigation/routes.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
@@ -100,16 +99,23 @@ class CountdownDetailScreen extends ConsumerWidget {
             label: s.share,
             leading: Icons.share_outlined,
             style: AppButtonStyle.filled,
-            onPressed: () {
+            onPressed: () async {
               final localeTag = Localizations.localeOf(context).toLanguageTag();
-              final formattedDate = formatDateLocalized(
-                event.dateUtc,
-                localeTag,
-              );
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(s.shareTitleDate(event.title, formattedDate)),
-                ),
+              final formattedDate = formatDateLocalized(event.dateUtc, localeTag);
+
+              // Build a simple, localized share message:
+              // Line 1: emoji + title
+              // Line 2: localized date
+              // Line 3: localized D-day text (e.g., “3日後” / “3 days left”)
+              final shareText = [
+                '${event.emoji ?? '🎉'} ${event.title}',
+                formattedDate,
+                ddayText, // already localized via formatDDayLabelL10n
+              ].join('\n');
+
+              await Share.share(
+                shareText,
+                subject: s.appTitle, // optional, used by some platforms
               );
             },
           ),

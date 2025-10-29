@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:countdown_app/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
@@ -83,7 +84,10 @@ class CountdownListScreen extends ConsumerWidget {
                     label: AppLocalizations.of(context)!.newCountdown,
                     leading: Icons.add,
                     onPressed: () async {
-                      await Navigator.pushNamed(context, Routes.countdownAddEdit);
+                      await Navigator.pushNamed(
+                        context,
+                        Routes.countdownAddEdit,
+                      );
                       if (!context.mounted) return;
                       ref.invalidate(eventsListProvider);
                       ref.invalidate(nearestUpcomingProvider);
@@ -103,7 +107,11 @@ class CountdownListScreen extends ConsumerWidget {
                 final e = events[eventIndex];
 
                 return CountdownCard(
-                  ddayText: formatDDayLabelL10n(e.dateUtc, DateTime.now(), context),
+                  ddayText: formatDDayLabelL10n(
+                    e.dateUtc,
+                    DateTime.now(),
+                    context,
+                  ),
                   title: e.title,
                   dateLabel: formatDateLocalized(e.dateUtc, localeTag),
                   emoji: e.emoji,
@@ -157,7 +165,11 @@ class CountdownListScreen extends ConsumerWidget {
   ) async {
     switch (value) {
       case 'edit':
-        await Navigator.pushNamed(context, Routes.countdownAddEdit, arguments: e.id);
+        await Navigator.pushNamed(
+          context,
+          Routes.countdownAddEdit,
+          arguments: e.id,
+        );
         ref.invalidate(eventsListProvider);
         ref.invalidate(nearestUpcomingProvider);
         break;
@@ -166,8 +178,9 @@ class CountdownListScreen extends ConsumerWidget {
         final ok = await _confirmDelete(context);
         if (ok) {
           // Cancel any scheduled reminders for this event
-          await NotificationService.instance
-              .rescheduleForEvent(e.copyWith(reminderOffsets: const []));
+          await NotificationService.instance.rescheduleForEvent(
+            e.copyWith(reminderOffsets: const []),
+          );
           await ref.read(countdownRepositoryProvider).remove(e.id);
           ref.invalidate(eventsListProvider);
           ref.invalidate(nearestUpcomingProvider);
@@ -178,18 +191,23 @@ class CountdownListScreen extends ConsumerWidget {
         }
         break;
 
-      case 'share':
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.shareTitleIso(
-                e.title,
-                e.dateUtc.toIso8601String(),
-              ),
-            ),
-          ),
-        );
+      case 'share': {
+        final s = AppLocalizations.of(context)!;
+        final localeTag = Localizations.localeOf(context).toLanguageTag();
+        final formattedDate = formatDateLocalized(e.dateUtc, localeTag);
+        final dday = formatDDayLabelL10n(e.dateUtc, DateTime.now(), context);
+
+        final text = [
+          '${e.emoji ?? '🎉'} ${e.title}',
+          formattedDate,
+          dday, // localized “X days left / X日前”
+        ].join('\n');
+
+        // Let the popup menu finish dismissing before presenting the share sheet
+        await Future.delayed(const Duration(milliseconds: 120));
+        await Share.share(text, subject: s.appTitle);
         break;
+      }
     }
   }
 
@@ -212,5 +230,5 @@ class CountdownListScreen extends ConsumerWidget {
       ),
     );
     return result ?? false;
-    }
+  }
 }
