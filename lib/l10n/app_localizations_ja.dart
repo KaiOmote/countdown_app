@@ -398,4 +398,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String notificationDebugScheduled(String time) {
     return 'テスト通知 - $timeに送信されます';
   }
+
+  @override
+  String get shareAs => '共有方法を選択…';
+
+  @override
+  String get shareAsImage => '画像';
+
+  @override
+  String get shareAsText => 'テキスト';
+
+  @override
+  String get shareImageGenerating => '画像を準備しています…';
+
+  @override
+  String get shareImageFailed => '画像の作成に失敗しました。';
 }

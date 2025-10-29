@@ -751,6 +751,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test reminder - fires at {time}'**
   String notificationDebugScheduled(String time);
+
+  /// Title for share mode chooser
+  ///
+  /// In en, this message translates to:
+  /// **'Share as…'**
+  String get shareAs;
+
+  /// Share as image option
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get shareAsImage;
+
+  /// Share as text option
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get shareAsText;
+
+  /// SnackBar while generating image
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing image…'**
+  String get shareImageGenerating;
+
+  /// Shown if capture fails
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t generate the image.'**
+  String get shareImageFailed;
 }
 
 class _AppLocalizationsDelegate

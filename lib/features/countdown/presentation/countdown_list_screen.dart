@@ -14,6 +14,7 @@ import '../../countdown/data/countdown_event.dart';
 import '../../../core/navigation/routes.dart';
 import '../../settings/iap_service.dart';
 import '../../../core/utils/constants.dart';
+import '../../../core/utils/share_utils.dart';
 import 'widgets/free_cap_banner.dart';
 import '../../notifications/notification_service.dart';
 
@@ -106,38 +107,42 @@ class CountdownListScreen extends ConsumerWidget {
                 final eventIndex = maybeBanner != null ? index - 1 : index;
                 final e = events[eventIndex];
 
-                return CountdownCard(
-                  ddayText: formatDDayLabelL10n(
-                    e.dateUtc,
-                    DateTime.now(),
-                    context,
-                  ),
-                  title: e.title,
-                  dateLabel: formatDateLocalized(e.dateUtc, localeTag),
-                  emoji: e.emoji,
-                  note: e.notes,
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    Routes.countdownDetail,
-                    arguments: e.id,
-                  ),
-                  trailing: PopupMenuButton<String>(
-                    onSelected: (value) => _handleMenu(context, ref, value, e),
-                    itemBuilder: (ctx) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Text(AppLocalizations.of(ctx)!.editCountdown),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text(AppLocalizations.of(ctx)!.delete),
-                      ),
-                      // Add a key later if you want to localize Share
-                      PopupMenuItem(
-                        value: 'share',
-                        child: Text(AppLocalizations.of(ctx)!.share),
-                      ),
-                    ],
+                final shareKey = GlobalObjectKey('card-${e.id}');
+                return RepaintBoundary(
+                  key: shareKey,
+                  child: CountdownCard(
+                    ddayText: formatDDayLabelL10n(
+                      e.dateUtc,
+                      DateTime.now(),
+                      context,
+                    ),
+                    title: e.title,
+                    dateLabel: formatDateLocalized(e.dateUtc, localeTag),
+                    emoji: e.emoji,
+                    note: e.notes,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.countdownDetail,
+                      arguments: e.id,
+                    ),
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) =>
+                          _handleMenu(context, ref, value, e, shareKey),
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Text(AppLocalizations.of(ctx)!.editCountdown),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text(AppLocalizations.of(ctx)!.delete),
+                        ),
+                        PopupMenuItem(
+                          value: 'share',
+                          child: Text(AppLocalizations.of(ctx)!.share),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -162,6 +167,7 @@ class CountdownListScreen extends ConsumerWidget {
     WidgetRef ref,
     String value,
     CountdownEvent e,
+    GlobalKey shareKey,
   ) async {
     switch (value) {
       case 'edit':
@@ -191,23 +197,73 @@ class CountdownListScreen extends ConsumerWidget {
         }
         break;
 
-      case 'share': {
+      case 'share':
         final s = AppLocalizations.of(context)!;
-        final localeTag = Localizations.localeOf(context).toLanguageTag();
-        final formattedDate = formatDateLocalized(e.dateUtc, localeTag);
-        final dday = formatDDayLabelL10n(e.dateUtc, DateTime.now(), context);
-
-        final text = [
-          '${e.emoji ?? '🎉'} ${e.title}',
-          formattedDate,
-          dday, // localized “X days left / X日前”
-        ].join('\n');
-
-        // Let the popup menu finish dismissing before presenting the share sheet
-        await Future.delayed(const Duration(milliseconds: 120));
-        await Share.share(text, subject: s.appTitle);
+        await showModalBottomSheet<void>(
+          context: context,
+          showDragHandle: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (ctx) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(title: Text(s.shareAs)),
+                const Divider(height: 0),
+                ListTile(
+                  leading: const Icon(Icons.image_outlined),
+                  title: Text(s.shareAsImage),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(s.shareImageGenerating)),
+                    );
+                    final ok = await ShareUtils.shareBoundaryAsImage(
+                      key: shareKey,
+                      subject: s.appTitle,
+                    );
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    if (!ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(s.shareImageFailed)),
+                      );
+                    }
+                  },
+                ),
+                const Divider(height: 0),
+                ListTile(
+                  leading: const Icon(Icons.notes_outlined),
+                  title: Text(s.shareAsText),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    final localeTag = Localizations.localeOf(
+                      context,
+                    ).toLanguageTag();
+                    final formattedDate = formatDateLocalized(
+                      e.dateUtc,
+                      localeTag,
+                    );
+                    final ddayText = formatDDayLabelL10n(
+                      e.dateUtc,
+                      DateTime.now(),
+                      context,
+                    );
+                    final shareText = [
+                      '${e.emoji ?? '🎉'} ${e.title}',
+                      formattedDate,
+                      ddayText,
+                    ].join('\n');
+                    await Future.delayed(const Duration(milliseconds: 120));
+                    await Share.share(shareText, subject: s.appTitle);
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
         break;
-      }
     }
   }
 

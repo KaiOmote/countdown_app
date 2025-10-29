@@ -311,5 +311,25 @@
         "type": "String"
       }
     }
+  },
+  "shareAs": "共有方法を選択…",
+  "@shareAs": {
+    "description": "Title for share mode chooser"
+  },
+  "shareAsImage": "画像",
+  "@shareAsImage": {
+    "description": "Share as image option"
+  },
+  "shareAsText": "テキスト",
+  "@shareAsText": {
+    "description": "Share as text option"
+  },
+  "shareImageGenerating": "画像を準備しています…",
+  "@shareImageGenerating": {
+    "description": "SnackBar while generating image"
+  },
+  "shareImageFailed": "画像の作成に失敗しました。",
+  "@shareImageFailed": {
+    "description": "Shown if capture fails"
   }
 }

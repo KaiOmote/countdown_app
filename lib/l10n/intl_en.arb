@@ -311,5 +311,25 @@
         "type": "String"
       }
     }
+  },
+  "shareAs": "Share as…",
+  "@shareAs": {
+    "description": "Title for share mode chooser"
+  },
+  "shareAsImage": "Image",
+  "@shareAsImage": {
+    "description": "Share as image option"
+  },
+  "shareAsText": "Text",
+  "@shareAsText": {
+    "description": "Share as text option"
+  },
+  "shareImageGenerating": "Preparing image…",
+  "@shareImageGenerating": {
+    "description": "SnackBar while generating image"
+  },
+  "shareImageFailed": "Couldn’t generate the image.",
+  "@shareImageFailed": {
+    "description": "Shown if capture fails"
   }
 }

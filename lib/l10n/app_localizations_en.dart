@@ -400,4 +400,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationDebugScheduled(String time) {
     return 'Test reminder - fires at $time';
   }
+
+  @override
+  String get shareAs => 'Share as…';
+
+  @override
+  String get shareAsImage => 'Image';
+
+  @override
+  String get shareAsText => 'Text';
+
+  @override
+  String get shareImageGenerating => 'Preparing image…';
+
+  @override
+  String get shareImageFailed => 'Couldn’t generate the image.';
 }
