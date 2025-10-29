@@ -64,7 +64,6 @@
   "enterPositiveDays": "Please enter 1 or more days",
   "countdownAdded": "Countdown added",
   "paywallUnlockTitle": "Unlock Pro",
-  
   "@paywallUnlockTitle": {
     "description": "Paywall copy."
   },
@@ -171,5 +170,27 @@
         "type": "String"
       }
     }
+  },
+  "freeCapBannerAtLimit": "You've reached your free limit ({cap}). Unlock Pro for unlimited events.",
+  "@freeCapBannerAtLimit": {
+    "description": "Message shown when the user has reached the free event cap.",
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
+  "freeCapBannerRemaining": "Only {remaining} left on the free plan. Upgrade for unlimited events.",
+  "@freeCapBannerRemaining": {
+    "description": "Message showing how many free events remain before hitting the cap.",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "freeCapBannerUpgrade": "Upgrade",
+  "@freeCapBannerUpgrade": {
+    "description": "Upgrade button label for the free cap banner."
   }
 }

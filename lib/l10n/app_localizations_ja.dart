@@ -296,4 +296,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String paywallGenericError(String message) {
     return '問題が発生しました。\n$message';
   }
+
+  @override
+  String freeCapBannerAtLimit(int cap) {
+    return '無料プランの上限（$cap件）に達しました。無制限のイベントのためにPro版をアンロックしましょう。';
+  }
+
+  @override
+  String freeCapBannerRemaining(int remaining) {
+    return '無料プランで残り$remaining件です。無制限にするにはアップグレードしましょう。';
+  }
+
+  @override
+  String get freeCapBannerUpgrade => 'アップグレード';
 }

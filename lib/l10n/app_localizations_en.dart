@@ -297,4 +297,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String paywallGenericError(String message) {
     return 'Something went wrong.\n$message';
   }
+
+  @override
+  String freeCapBannerAtLimit(int cap) {
+    return 'You\'ve reached your free limit ($cap). Unlock Pro for unlimited events.';
+  }
+
+  @override
+  String freeCapBannerRemaining(int remaining) {
+    return 'Only $remaining left on the free plan. Upgrade for unlimited events.';
+  }
+
+  @override
+  String get freeCapBannerUpgrade => 'Upgrade';
 }

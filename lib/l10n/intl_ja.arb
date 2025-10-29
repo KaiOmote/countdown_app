@@ -170,5 +170,27 @@
         "type": "String"
       }
     }
+  },
+  "freeCapBannerAtLimit": "無料プランの上限（{cap}件）に達しました。無制限のイベントのためにPro版をアンロックしましょう。",
+  "@freeCapBannerAtLimit": {
+    "description": "無料上限に達した際の案内メッセージ。",
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
+  "freeCapBannerRemaining": "無料プランで残り{remaining}件です。無制限にするにはアップグレードしましょう。",
+  "@freeCapBannerRemaining": {
+    "description": "無料枠の残り数を表示するメッセージ。",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "freeCapBannerUpgrade": "アップグレード",
+  "@freeCapBannerUpgrade": {
+    "description": "無料枠バナーで表示するアップグレードボタンのラベル。"
   }
 }

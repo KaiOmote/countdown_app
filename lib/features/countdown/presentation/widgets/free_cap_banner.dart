@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
 
 class FreeCapBanner extends StatelessWidget {
   final VoidCallback onUpgrade;
@@ -15,9 +16,11 @@ class FreeCapBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final atCap = current >= cap;
+    final remaining = cap - current;
+    final l10n = AppLocalizations.of(context)!;
     final text = atCap
-        ? 'You’ve reached your free limit ($cap). Unlock Pro for unlimited events.'
-        : 'Only ${cap - current} left on the free plan. Upgrade for unlimited events.';
+        ? l10n.freeCapBannerAtLimit(cap)
+        : l10n.freeCapBannerRemaining(remaining);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -32,7 +35,10 @@ class FreeCapBanner extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Text(text)),
           const SizedBox(width: 12),
-          TextButton(onPressed: onUpgrade, child: const Text('Upgrade')),
+          TextButton(
+            onPressed: onUpgrade,
+            child: Text(l10n.freeCapBannerUpgrade),
+          ),
         ],
       ),
     );

@@ -607,6 +607,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong.\n{message}'**
   String paywallGenericError(String message);
+
+  /// Message shown when the user has reached the free event cap.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached your free limit ({cap}). Unlock Pro for unlimited events.'**
+  String freeCapBannerAtLimit(int cap);
+
+  /// Message showing how many free events remain before hitting the cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {remaining} left on the free plan. Upgrade for unlimited events.'**
+  String freeCapBannerRemaining(int remaining);
+
+  /// Upgrade button label for the free cap banner.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get freeCapBannerUpgrade;
 }
 
 class _AppLocalizationsDelegate
