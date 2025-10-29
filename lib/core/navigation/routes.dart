@@ -1,5 +1,6 @@
 // countdown_app/lib/core/navigation/routes.dart
 import 'package:flutter/material.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
 
 // Countdown
 import '../../features/countdown/presentation/countdown_list_screen.dart';
@@ -18,25 +19,27 @@ class Routes {
   static const paywall = '/settings/paywall';
 
   static Map<String, WidgetBuilder> builders() => {
-        // List
-        root: (_) => const CountdownListScreen(),
+    // List
+    root: (_) => const CountdownListScreen(),
 
-        // Detail (expects a String eventId in arguments)
-        countdownDetail: (context) {
-          final args = ModalRoute.of(context)?.settings.arguments;
-          if (args is String) {
-            return CountdownDetailScreen(eventId: args);
-          }
-          return const _RouteErrorScreen(message: 'Missing eventId for detail route');
-        },
+    // Detail (expects a String eventId in arguments)
+    countdownDetail: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is String) {
+        return CountdownDetailScreen(eventId: args);
+      }
+      return _RouteErrorScreen(
+        message: AppLocalizations.of(context)!.routeErrorMissingEvent,
+      );
+    },
 
-        // Add/Edit (optional String eventId in arguments; screen reads it)
-        countdownAddEdit: (_) => const AddEditCountdownScreen(),
+    // Add/Edit (optional String eventId in arguments; screen reads it)
+    countdownAddEdit: (_) => const AddEditCountdownScreen(),
 
-        // Settings & Paywall
-        settings: (_) => const SettingsScreen(),
-        paywall: (_) => const PaywallScreen(),
-      };
+    // Settings & Paywall
+    settings: (_) => const SettingsScreen(),
+    paywall: (_) => const PaywallScreen(),
+  };
 }
 
 /// Simple inline error screen for bad route arguments (dev-only).
@@ -47,7 +50,9 @@ class _RouteErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Route Error')),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.routeErrorTitle),
+      ),
       body: Center(child: Text(message, textAlign: TextAlign.center)),
     );
   }

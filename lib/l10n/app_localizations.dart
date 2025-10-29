@@ -625,6 +625,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upgrade'**
   String get freeCapBannerUpgrade;
+
+  /// Label for a reminder set 1 day before the event.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get reminderOffsetOneDay;
+
+  /// Label for a reminder set 3 days before the event.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days before'**
+  String get reminderOffsetThreeDays;
+
+  /// Label for a reminder set 1 week before the event.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week before'**
+  String get reminderOffsetOneWeek;
+
+  /// Label for a reminder set 1 month before the event.
+  ///
+  /// In en, this message translates to:
+  /// **'1 month before'**
+  String get reminderOffsetOneMonth;
+
+  /// Label for a reminder set a specified number of days before the event.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days before'**
+  String reminderOffsetDays(int days);
+
+  /// Title for the generic route error screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Route Error'**
+  String get routeErrorTitle;
+
+  /// Message shown when a route is missing the expected eventId argument.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing eventId for detail route.'**
+  String get routeErrorMissingEvent;
+
+  /// Label for the 1 day reminder preset chip.
+  ///
+  /// In en, this message translates to:
+  /// **'1d'**
+  String get reminderPresetOneDay;
+
+  /// Label for the 3 day reminder preset chip.
+  ///
+  /// In en, this message translates to:
+  /// **'3d'**
+  String get reminderPresetThreeDays;
+
+  /// Label for the 1 week reminder preset chip.
+  ///
+  /// In en, this message translates to:
+  /// **'1w'**
+  String get reminderPresetOneWeek;
+
+  /// Label for the 1 month reminder preset chip.
+  ///
+  /// In en, this message translates to:
+  /// **'1m'**
+  String get reminderPresetOneMonth;
 }
 
 class _AppLocalizationsDelegate

@@ -12,13 +12,13 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode  = ref.watch(themeProvider);
+    final themeMode = ref.watch(themeProvider);
     final lightTheme = ref.watch(themeDataLightProvider);
-    final darkTheme  = ref.watch(themeDataDarkProvider);
-    final locale     = ref.watch(localeProvider);
+    final darkTheme = ref.watch(themeDataDarkProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp(
-      title: 'Countdown',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,

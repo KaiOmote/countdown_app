@@ -192,5 +192,54 @@
   "freeCapBannerUpgrade": "アップグレード",
   "@freeCapBannerUpgrade": {
     "description": "無料枠バナーで表示するアップグレードボタンのラベル。"
+  },
+  "reminderOffsetOneDay": "1日前",
+  "@reminderOffsetOneDay": {
+    "description": "1日前のリマインダーラベル。"
+  },
+  "reminderOffsetThreeDays": "3日前",
+  "@reminderOffsetThreeDays": {
+    "description": "3日前のリマインダーラベル。"
+  },
+  "reminderOffsetOneWeek": "1週間前",
+  "@reminderOffsetOneWeek": {
+    "description": "1週間前のリマインダーラベル。"
+  },
+  "reminderOffsetOneMonth": "1か月前",
+  "@reminderOffsetOneMonth": {
+    "description": "1か月前のリマインダーラベル。"
+  },
+  "reminderOffsetDays": "{days}日前",
+  "@reminderOffsetDays": {
+    "description": "指定した日数前のリマインダーラベル。",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "routeErrorTitle": "ルートエラー",
+  "@routeErrorTitle": {
+    "description": "ルートエラー画面のタイトル。"
+  },
+  "routeErrorMissingEvent": "詳細画面に必要な eventId がありません。",
+  "@routeErrorMissingEvent": {
+    "description": "eventId が指定されていないときに表示するメッセージ。"
+  },
+  "reminderPresetOneDay": "1日",
+  "@reminderPresetOneDay": {
+    "description": "1日前リマインダーのプリセットラベル。"
+  },
+  "reminderPresetThreeDays": "3日",
+  "@reminderPresetThreeDays": {
+    "description": "3日前リマインダーのプリセットラベル。"
+  },
+  "reminderPresetOneWeek": "1週",
+  "@reminderPresetOneWeek": {
+    "description": "1週間前リマインダーのプリセットラベル。"
+  },
+  "reminderPresetOneMonth": "1か月",
+  "@reminderPresetOneMonth": {
+    "description": "1か月前リマインダーのプリセットラベル。"
   }
 }

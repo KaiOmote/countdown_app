@@ -310,4 +310,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freeCapBannerUpgrade => 'Upgrade';
+
+  @override
+  String get reminderOffsetOneDay => '1 day before';
+
+  @override
+  String get reminderOffsetThreeDays => '3 days before';
+
+  @override
+  String get reminderOffsetOneWeek => '1 week before';
+
+  @override
+  String get reminderOffsetOneMonth => '1 month before';
+
+  @override
+  String reminderOffsetDays(int days) {
+    return '$days days before';
+  }
+
+  @override
+  String get routeErrorTitle => 'Route Error';
+
+  @override
+  String get routeErrorMissingEvent => 'Missing eventId for detail route.';
+
+  @override
+  String get reminderPresetOneDay => '1d';
+
+  @override
+  String get reminderPresetThreeDays => '3d';
+
+  @override
+  String get reminderPresetOneWeek => '1w';
+
+  @override
+  String get reminderPresetOneMonth => '1m';
 }

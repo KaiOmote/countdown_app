@@ -192,5 +192,54 @@
   "freeCapBannerUpgrade": "Upgrade",
   "@freeCapBannerUpgrade": {
     "description": "Upgrade button label for the free cap banner."
+  },
+  "reminderOffsetOneDay": "1 day before",
+  "@reminderOffsetOneDay": {
+    "description": "Label for a reminder set 1 day before the event."
+  },
+  "reminderOffsetThreeDays": "3 days before",
+  "@reminderOffsetThreeDays": {
+    "description": "Label for a reminder set 3 days before the event."
+  },
+  "reminderOffsetOneWeek": "1 week before",
+  "@reminderOffsetOneWeek": {
+    "description": "Label for a reminder set 1 week before the event."
+  },
+  "reminderOffsetOneMonth": "1 month before",
+  "@reminderOffsetOneMonth": {
+    "description": "Label for a reminder set 1 month before the event."
+  },
+  "reminderOffsetDays": "{days} days before",
+  "@reminderOffsetDays": {
+    "description": "Label for a reminder set a specified number of days before the event.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "routeErrorTitle": "Route Error",
+  "@routeErrorTitle": {
+    "description": "Title for the generic route error screen."
+  },
+  "routeErrorMissingEvent": "Missing eventId for detail route.",
+  "@routeErrorMissingEvent": {
+    "description": "Message shown when a route is missing the expected eventId argument."
+  },
+  "reminderPresetOneDay": "1d",
+  "@reminderPresetOneDay": {
+    "description": "Label for the 1 day reminder preset chip."
+  },
+  "reminderPresetThreeDays": "3d",
+  "@reminderPresetThreeDays": {
+    "description": "Label for the 3 day reminder preset chip."
+  },
+  "reminderPresetOneWeek": "1w",
+  "@reminderPresetOneWeek": {
+    "description": "Label for the 1 week reminder preset chip."
+  },
+  "reminderPresetOneMonth": "1m",
+  "@reminderPresetOneMonth": {
+    "description": "Label for the 1 month reminder preset chip."
   }
 }

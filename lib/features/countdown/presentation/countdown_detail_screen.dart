@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:countdown_app/l10n/app_localizations.dart';
 
-
 import '../../../core/navigation/routes.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/utils/gaps.dart';
@@ -31,7 +30,11 @@ class CountdownDetailScreen extends ConsumerWidget {
     final event = matches.first;
 
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final ddayText = formatDDayLabelL10n(event.dateUtc, DateTime.now(), context);
+    final ddayText = formatDDayLabelL10n(
+      event.dateUtc,
+      DateTime.now(),
+      context,
+    );
     final dateLabel = formatDateLocalized(event.dateUtc, locale);
 
     return Scaffold(
@@ -67,12 +70,12 @@ class CountdownDetailScreen extends ConsumerWidget {
           ),
           gap24,
           if (event.reminderOffsets.isNotEmpty) ...[
-            Text('Reminders', style: Theme.of(context).textTheme.labelLarge),
+            Text(s.reminders, style: Theme.of(context).textTheme.labelLarge),
             gap8,
             Wrap(
               spacing: 8,
               children: event.reminderOffsets
-                  .map((days) => Chip(label: Text(_labelForOffset(days))))
+                  .map((days) => Chip(label: Text(_labelForOffset(s, days))))
                   .toList(),
             ),
             gap24,
@@ -97,9 +100,14 @@ class CountdownDetailScreen extends ConsumerWidget {
             style: AppButtonStyle.filled,
             onPressed: () {
               final localeTag = Localizations.localeOf(context).toLanguageTag();
-              final formattedDate = formatDateLocalized(event.dateUtc, localeTag);
+              final formattedDate = formatDateLocalized(
+                event.dateUtc,
+                localeTag,
+              );
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(s.shareTitleDate(event.title, formattedDate))),
+                SnackBar(
+                  content: Text(s.shareTitleDate(event.title, formattedDate)),
+                ),
               );
             },
           ),
@@ -299,12 +307,12 @@ class CountdownDetailScreen extends ConsumerWidget {
     );
   }
 
-  String _labelForOffset(int days) {
-    if (days == 1) return '1 day before';
-    if (days == 3) return '3 days before';
-    if (days == 7) return '1 week before';
-    if (days == 30) return '1 month before';
-    return '$days days before';
+  String _labelForOffset(AppLocalizations s, int days) {
+    if (days == 1) return s.reminderOffsetOneDay;
+    if (days == 3) return s.reminderOffsetThreeDays;
+    if (days == 7) return s.reminderOffsetOneWeek;
+    if (days == 30) return s.reminderOffsetOneMonth;
+    return s.reminderOffsetDays(days);
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
@@ -314,8 +322,8 @@ class CountdownDetailScreen extends ConsumerWidget {
         // Get localizations from the *builder* context
         final s = AppLocalizations.of(dialogCtx)!;
         return AlertDialog(
-          title: Text(s.deleteCountdownQ),      // no const with s
-          content: Text(s.cannotBeUndone),      // no const with s
+          title: Text(s.deleteCountdownQ), // no const with s
+          content: Text(s.cannotBeUndone), // no const with s
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx, false),
@@ -331,5 +339,4 @@ class CountdownDetailScreen extends ConsumerWidget {
     );
     return result ?? false;
   }
-
 }

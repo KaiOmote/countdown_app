@@ -200,25 +200,25 @@ class _AddEditCountdownScreenState
             spacing: 8,
             children: [
               _ReminderChip(
-                label: '1d',
+                label: s.reminderPresetOneDay,
                 offset: 1,
                 selected: _reminders.contains(1),
                 onTap: () => _toggleReminder(1),
               ),
               _ReminderChip(
-                label: '3d',
+                label: s.reminderPresetThreeDays,
                 offset: 3,
                 selected: _reminders.contains(3),
                 onTap: () => _toggleReminder(3),
               ),
               _ReminderChip(
-                label: '1w',
+                label: s.reminderPresetOneWeek,
                 offset: 7,
                 selected: _reminders.contains(7),
                 onTap: () => _toggleReminder(7),
               ),
               _ReminderChip(
-                label: '1m',
+                label: s.reminderPresetOneMonth,
                 offset: 30,
                 selected: _reminders.contains(30),
                 onTap: () => _toggleReminder(30),
@@ -258,8 +258,20 @@ class _AddEditCountdownScreenState
             spacing: 8,
             runSpacing: 8,
             children: const [
-              '🎉', '🎂', '✈️', '📺', '🎵', '💖', '📷', '🎓', '🗓️',
-              '🏖️', '🎄', '🎬', '☕', '💪'
+              '🎉',
+              '🎂',
+              '✈️',
+              '📺',
+              '🎵',
+              '💖',
+              '📷',
+              '🎓',
+              '🗓️',
+              '🏖️',
+              '🎄',
+              '🎬',
+              '☕',
+              '💪',
             ].map((e) => _EmojiChip(emoji: e)).toList(),
           ),
           gap16,
@@ -309,8 +321,8 @@ class _EmojiChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state =
-        context.findAncestorStateOfType<_AddEditCountdownScreenState>();
+    final state = context
+        .findAncestorStateOfType<_AddEditCountdownScreenState>();
     final selected = state?._emoji == emoji;
     return ChoiceChip(
       label: Text(emoji, style: const TextStyle(fontSize: 18)),
@@ -333,12 +345,17 @@ Future<int?> _promptCustomReminder(BuildContext context) async {
           controller: controller,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            labelText: s.daysBeforeEvent(0), // caption label; 0 is ignored by users
+            labelText: s.daysBeforeEvent(
+              0,
+            ), // caption label; 0 is ignored by users
             hintText: s.egTen,
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, null), child: Text(s.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: Text(s.cancel),
+          ),
           TextButton(
             onPressed: () {
               final parsed = int.tryParse(controller.text.trim());

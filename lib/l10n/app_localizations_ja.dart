@@ -309,4 +309,39 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get freeCapBannerUpgrade => 'アップグレード';
+
+  @override
+  String get reminderOffsetOneDay => '1日前';
+
+  @override
+  String get reminderOffsetThreeDays => '3日前';
+
+  @override
+  String get reminderOffsetOneWeek => '1週間前';
+
+  @override
+  String get reminderOffsetOneMonth => '1か月前';
+
+  @override
+  String reminderOffsetDays(int days) {
+    return '$days日前';
+  }
+
+  @override
+  String get routeErrorTitle => 'ルートエラー';
+
+  @override
+  String get routeErrorMissingEvent => '詳細画面に必要な eventId がありません。';
+
+  @override
+  String get reminderPresetOneDay => '1日';
+
+  @override
+  String get reminderPresetThreeDays => '3日';
+
+  @override
+  String get reminderPresetOneWeek => '1週';
+
+  @override
+  String get reminderPresetOneMonth => '1か月';
 }
