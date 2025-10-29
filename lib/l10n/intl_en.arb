@@ -11,26 +11,23 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "themeColor": "Theme color",
-
+  "noCountdownsMsg": "You have no countdowns yet!",
   "addCountdown": "Add countdown",
   "editCountdown": "Edit countdown",
   "edit": "Edit",
   "selectDate": "Select date",
   "notes": "Notes",
   "optionalNotes": "Optional notes",
-  "createFirst": "Create your first countdown to get started.",
+  "createFirst": "Create your first countdown to get started🎉",
   "notFound": "Not found",
-
   "upgradePro": "Upgrade to Pro",
   "proThanks": "You’re Pro! 🎉",
   "proThanksSubtitle": "Thank you for supporting the app",
   "proChecking": "Checking Pro status…",
   "proStatusUnavailable": "Status unavailable — tap to manage",
   "restorePurchases": "Restore purchases",
-
   "appVersion": "App version",
   "mvp": "1.0.0 (MVP)",
-
   "titleLabel": "Title",
   "newCountdown": "New Countdown",
   "editCountdownFull": "Edit Countdown",
@@ -55,11 +52,9 @@
   "shareTitleIso": "Share: {title} • {dateIso}",
   "scheduledInMinutes": "Scheduled in {minutes} min",
   "scheduledInSeconds": "Scheduled in {seconds} sec",
-
   "dueToday": "Today",
   "daysLeft": "{count, plural, one {{count} day} other {{count} days}} left",
   "daysAgo": "{count, plural, one {{count} day} other {{count} days}} ago",
-
   "exampleEventHint": "e.g. Birthday Party",
   "dateLabel": "Date",
   "iconLabel": "Icon",
@@ -67,5 +62,114 @@
   "enterTitle": "Please enter a title",
   "chooseDate": "Please choose a date",
   "enterPositiveDays": "Please enter 1 or more days",
-  "countdownAdded": "Countdown added"
+  "countdownAdded": "Countdown added",
+  "paywallUnlockTitle": "Unlock Pro",
+  
+  "@paywallUnlockTitle": {
+    "description": "Paywall copy."
+  },
+  "paywallSubtitle": "Unlock Pro for unlimited events, exclusive themes, and an ad-free experience.",
+  "@paywallSubtitle": {
+    "description": "Paywall copy."
+  },
+  "paywallFeatureHeader": "Feature",
+  "@paywallFeatureHeader": {
+    "description": "Paywall copy."
+  },
+  "paywallFreeColumn": "Free",
+  "@paywallFreeColumn": {
+    "description": "Paywall copy."
+  },
+  "paywallProColumn": "Pro",
+  "@paywallProColumn": {
+    "description": "Paywall copy."
+  },
+  "paywallFeatureEventLimit": "Event limit",
+  "@paywallFeatureEventLimit": {
+    "description": "Paywall copy."
+  },
+  "paywallFeatureThemes": "Themes",
+  "@paywallFeatureThemes": {
+    "description": "Paywall copy."
+  },
+  "paywallFeatureAdFree": "Ad-free",
+  "@paywallFeatureAdFree": {
+    "description": "Paywall copy."
+  },
+  "paywallEventLimitPro": "Unlimited",
+  "@paywallEventLimitPro": {
+    "description": "Paywall copy."
+  },
+  "paywallThemeFree": "Basic",
+  "@paywallThemeFree": {
+    "description": "Paywall copy."
+  },
+  "paywallThemePro": "Exclusive",
+  "@paywallThemePro": {
+    "description": "Paywall copy."
+  },
+  "paywallAdFreeFree": "No",
+  "@paywallAdFreeFree": {
+    "description": "Paywall copy."
+  },
+  "paywallAdFreePro": "Yes",
+  "@paywallAdFreePro": {
+    "description": "Paywall copy."
+  },
+  "paywallAlreadyPro": "You already have Pro",
+  "@paywallAlreadyPro": {
+    "description": "Paywall copy."
+  },
+  "paywallProcessing": "Processing...",
+  "@paywallProcessing": {
+    "description": "Paywall copy."
+  },
+  "paywallPurchaseSuccess": "Pro unlocked!",
+  "@paywallPurchaseSuccess": {
+    "description": "Paywall copy."
+  },
+  "paywallPurchaseCancelled": "Purchase cancelled",
+  "@paywallPurchaseCancelled": {
+    "description": "Paywall copy."
+  },
+  "paywallPurchaseFailed": "Purchase failed: {error}",
+  "@paywallPurchaseFailed": {
+    "description": "Shown when the purchase flow fails with an error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOneTimePrice": "One-time purchase {price}",
+  "@paywallOneTimePrice": {
+    "description": "Label showing the one-time purchase price for Pro.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallRestoreSuccess": "Purchases restored",
+  "@paywallRestoreSuccess": {
+    "description": "Paywall copy."
+  },
+  "paywallRestoreFailed": "Restore failed: {error}",
+  "@paywallRestoreFailed": {
+    "description": "Shown when the restore purchases flow fails with an error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallGenericError": "Something went wrong.\n{message}",
+  "@paywallGenericError": {
+    "description": "Error message displayed with details when loading the paywall fails.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -1,6 +1,7 @@
 // lib/features/settings/paywall_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:countdown_app/l10n/app_localizations.dart';
 
 import '../../core/utils/gaps.dart';
 import '../../widgets/app_button.dart';
@@ -16,6 +17,7 @@ class PaywallScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isProAsync = ref.watch(isProProvider);
     final busy = ref.watch(_purchaseBusyProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -24,7 +26,7 @@ class PaywallScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
-          )
+          ),
         ],
       ),
 
@@ -51,14 +53,14 @@ class PaywallScreen extends ConsumerWidget {
             // Title
             Center(
               child: Text(
-                isPro ? 'You’re Pro! 🎉' : 'Unlock Pro',
+                isPro ? l10n.proThanks : l10n.paywallUnlockTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
             gap8,
             Center(
               child: Text(
-                'Unlock Pro for unlimited events, exclusive themes, and an ad-free experience.',
+                l10n.paywallSubtitle,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
@@ -76,10 +78,27 @@ class PaywallScreen extends ConsumerWidget {
                 2: FlexColumnWidth(1),
               },
               children: [
-                _buildRow('Feature', 'Free', 'Pro', isHeader: true),
-                _buildRow('Event Limit', '5', 'Unlimited'),
-                _buildRow('Themes', 'Basic', 'Exclusive'),
-                _buildRow('Ad-Free', '✕', '✓'),
+                _buildRow(
+                  l10n.paywallFeatureHeader,
+                  l10n.paywallFreeColumn,
+                  l10n.paywallProColumn,
+                  isHeader: true,
+                ),
+                _buildRow(
+                  l10n.paywallFeatureEventLimit,
+                  '5',
+                  l10n.paywallEventLimitPro,
+                ),
+                _buildRow(
+                  l10n.paywallFeatureThemes,
+                  l10n.paywallThemeFree,
+                  l10n.paywallThemePro,
+                ),
+                _buildRow(
+                  l10n.paywallFeatureAdFree,
+                  l10n.paywallAdFreeFree,
+                  l10n.paywallAdFreePro,
+                ),
               ],
             ),
             gap24,
@@ -87,8 +106,8 @@ class PaywallScreen extends ConsumerWidget {
             // CTA button
             AppButton(
               label: isPro
-                  ? 'You already have Pro'
-                  : (busy ? 'Processing…' : 'Unlock Pro'),
+                  ? l10n.paywallAlreadyPro
+                  : (busy ? l10n.paywallProcessing : l10n.upgradePro),
               style: AppButtonStyle.filled,
               onPressed: (isPro || busy)
                   ? null
@@ -103,17 +122,25 @@ class PaywallScreen extends ConsumerWidget {
                           // refresh entitlement state
                           ref.invalidate(isProProvider);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Pro unlocked! 🎉')),
+                            SnackBar(
+                              content: Text(l10n.paywallPurchaseSuccess),
+                            ),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Purchase cancelled')),
+                            SnackBar(
+                              content: Text(l10n.paywallPurchaseCancelled),
+                            ),
                           );
                         }
                       } catch (e) {
                         if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Purchase failed: $e')),
+                          SnackBar(
+                            content: Text(
+                              l10n.paywallPurchaseFailed(e.toString()),
+                            ),
+                          ),
                         );
                       } finally {
                         ref.read(_purchaseBusyProvider.notifier).state = false;
@@ -123,7 +150,7 @@ class PaywallScreen extends ConsumerWidget {
             gap12,
             Center(
               child: Text(
-                'One-time purchase ¥1,200 JPY',
+                l10n.paywallOneTimePrice('JPY 1,200'),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
@@ -137,17 +164,19 @@ class PaywallScreen extends ConsumerWidget {
                     if (context.mounted) {
                       ref.invalidate(isProProvider);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Purchases restored')),
+                        SnackBar(content: Text(l10n.paywallRestoreSuccess)),
                       );
                     }
                   } catch (e) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Restore failed: $e')),
+                      SnackBar(
+                        content: Text(l10n.paywallRestoreFailed(e.toString())),
+                      ),
                     );
                   }
                 },
-                child: const Text('Restore purchases'),
+                child: Text(l10n.restorePurchases),
               ),
             ),
           ],
@@ -162,8 +191,9 @@ class PaywallScreen extends ConsumerWidget {
     String pro, {
     bool isHeader = false,
   }) {
-    final style =
-        isHeader ? const TextStyle(fontWeight: FontWeight.bold) : const TextStyle();
+    final style = isHeader
+        ? const TextStyle(fontWeight: FontWeight.bold)
+        : const TextStyle();
     return TableRow(
       children: [
         Padding(
@@ -189,6 +219,7 @@ class _ErrorBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -197,9 +228,11 @@ class _ErrorBody extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 36),
             gap12,
-            Text('Something went wrong.\n$message',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge),
+            Text(
+              l10n.paywallGenericError(message),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ],
         ),
       ),

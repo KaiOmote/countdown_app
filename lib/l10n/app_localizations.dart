@@ -164,6 +164,12 @@ abstract class AppLocalizations {
   /// **'Theme color'**
   String get themeColor;
 
+  /// No description provided for @noCountdownsMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no countdowns yet!'**
+  String get noCountdownsMsg;
+
   /// No description provided for @addCountdown.
   ///
   /// In en, this message translates to:
@@ -203,7 +209,7 @@ abstract class AppLocalizations {
   /// No description provided for @createFirst.
   ///
   /// In en, this message translates to:
-  /// **'Create your first countdown to get started.'**
+  /// **'Create your first countdown to get started🎉'**
   String get createFirst;
 
   /// No description provided for @notFound.
@@ -469,6 +475,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Countdown added'**
   String get countdownAdded;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Pro'**
+  String get paywallUnlockTitle;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Pro for unlimited events, exclusive themes, and an ad-free experience.'**
+  String get paywallSubtitle;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature'**
+  String get paywallFeatureHeader;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get paywallFreeColumn;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get paywallProColumn;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Event limit'**
+  String get paywallFeatureEventLimit;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Themes'**
+  String get paywallFeatureThemes;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-free'**
+  String get paywallFeatureAdFree;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get paywallEventLimitPro;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get paywallThemeFree;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive'**
+  String get paywallThemePro;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get paywallAdFreeFree;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get paywallAdFreePro;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have Pro'**
+  String get paywallAlreadyPro;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get paywallProcessing;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro unlocked!'**
+  String get paywallPurchaseSuccess;
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase cancelled'**
+  String get paywallPurchaseCancelled;
+
+  /// Shown when the purchase flow fails with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase failed: {error}'**
+  String paywallPurchaseFailed(String error);
+
+  /// Label showing the one-time purchase price for Pro.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase {price}'**
+  String paywallOneTimePrice(String price);
+
+  /// Paywall copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored'**
+  String get paywallRestoreSuccess;
+
+  /// Shown when the restore purchases flow fails with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String paywallRestoreFailed(String error);
+
+  /// Error message displayed with details when loading the paywall fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong.\n{message}'**
+  String paywallGenericError(String message);
 }
 
 class _AppLocalizationsDelegate

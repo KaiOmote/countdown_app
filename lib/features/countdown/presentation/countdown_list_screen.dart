@@ -73,10 +73,10 @@ class CountdownListScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const EmptyState(
+                  EmptyState(
                     emoji: '✨',
-                    title: 'まだカウントダウンがありません！',
-                    subtitle: '最初のイベントを追加しましょう🎉',
+                    title: AppLocalizations.of(context)!.noCountdownsMsg,
+                    subtitle: AppLocalizations.of(context)!.createFirst,
                   ),
                   gap16,
                   AppButton(

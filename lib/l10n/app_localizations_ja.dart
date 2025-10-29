@@ -42,6 +42,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get themeColor => 'テーマカラー';
 
   @override
+  String get noCountdownsMsg => 'まだカウントダウンを作成してません！';
+
+  @override
   String get addCountdown => 'カウントダウンを追加';
 
   @override
@@ -60,7 +63,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get optionalNotes => '任意のメモ';
 
   @override
-  String get createFirst => '最初のカウントダウンを作成しましょう。';
+  String get createFirst => '最初のカウントダウンを作成しましょう🎉';
 
   @override
   String get notFound => '見つかりません';
@@ -219,4 +222,78 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get countdownAdded => 'カウントダウンを追加しました';
+
+  @override
+  String get paywallUnlockTitle => 'Pro版をアンロック';
+
+  @override
+  String get paywallSubtitle => '無制限のイベント、限定テーマ、広告なしの体験を手に入れましょう。';
+
+  @override
+  String get paywallFeatureHeader => '機能';
+
+  @override
+  String get paywallFreeColumn => '無料';
+
+  @override
+  String get paywallProColumn => 'Pro';
+
+  @override
+  String get paywallFeatureEventLimit => 'イベント上限';
+
+  @override
+  String get paywallFeatureThemes => 'テーマ';
+
+  @override
+  String get paywallFeatureAdFree => '広告なし';
+
+  @override
+  String get paywallEventLimitPro => '無制限';
+
+  @override
+  String get paywallThemeFree => 'ベーシック';
+
+  @override
+  String get paywallThemePro => '限定';
+
+  @override
+  String get paywallAdFreeFree => 'いいえ';
+
+  @override
+  String get paywallAdFreePro => 'はい';
+
+  @override
+  String get paywallAlreadyPro => 'すでにPro版を利用中です';
+
+  @override
+  String get paywallProcessing => '処理中...';
+
+  @override
+  String get paywallPurchaseSuccess => 'Pro版がアンロックされました！';
+
+  @override
+  String get paywallPurchaseCancelled => '購入はキャンセルされました';
+
+  @override
+  String paywallPurchaseFailed(String error) {
+    return '購入に失敗しました: $error';
+  }
+
+  @override
+  String paywallOneTimePrice(String price) {
+    return '買い切り $price';
+  }
+
+  @override
+  String get paywallRestoreSuccess => '購入履歴を復元しました';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return '復元に失敗しました: $error';
+  }
+
+  @override
+  String paywallGenericError(String message) {
+    return '問題が発生しました。\n$message';
+  }
 }

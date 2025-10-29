@@ -42,6 +42,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeColor => 'Theme color';
 
   @override
+  String get noCountdownsMsg => 'You have no countdowns yet!';
+
+  @override
   String get addCountdown => 'Add countdown';
 
   @override
@@ -60,7 +63,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get optionalNotes => 'Optional notes';
 
   @override
-  String get createFirst => 'Create your first countdown to get started.';
+  String get createFirst => 'Create your first countdown to get started🎉';
 
   @override
   String get notFound => 'Not found';
@@ -219,4 +222,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get countdownAdded => 'Countdown added';
+
+  @override
+  String get paywallUnlockTitle => 'Unlock Pro';
+
+  @override
+  String get paywallSubtitle =>
+      'Unlock Pro for unlimited events, exclusive themes, and an ad-free experience.';
+
+  @override
+  String get paywallFeatureHeader => 'Feature';
+
+  @override
+  String get paywallFreeColumn => 'Free';
+
+  @override
+  String get paywallProColumn => 'Pro';
+
+  @override
+  String get paywallFeatureEventLimit => 'Event limit';
+
+  @override
+  String get paywallFeatureThemes => 'Themes';
+
+  @override
+  String get paywallFeatureAdFree => 'Ad-free';
+
+  @override
+  String get paywallEventLimitPro => 'Unlimited';
+
+  @override
+  String get paywallThemeFree => 'Basic';
+
+  @override
+  String get paywallThemePro => 'Exclusive';
+
+  @override
+  String get paywallAdFreeFree => 'No';
+
+  @override
+  String get paywallAdFreePro => 'Yes';
+
+  @override
+  String get paywallAlreadyPro => 'You already have Pro';
+
+  @override
+  String get paywallProcessing => 'Processing...';
+
+  @override
+  String get paywallPurchaseSuccess => 'Pro unlocked!';
+
+  @override
+  String get paywallPurchaseCancelled => 'Purchase cancelled';
+
+  @override
+  String paywallPurchaseFailed(String error) {
+    return 'Purchase failed: $error';
+  }
+
+  @override
+  String paywallOneTimePrice(String price) {
+    return 'One-time purchase $price';
+  }
+
+  @override
+  String get paywallRestoreSuccess => 'Purchases restored';
+
+  @override
+  String paywallRestoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String paywallGenericError(String message) {
+    return 'Something went wrong.\n$message';
+  }
 }

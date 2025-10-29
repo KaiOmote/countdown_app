@@ -11,26 +11,23 @@
   "themeLight": "ライト",
   "themeDark": "ダーク",
   "themeColor": "テーマカラー",
-
   "addCountdown": "カウントダウンを追加",
+  "noCountdownsMsg": "まだカウントダウンを作成してません！",
   "editCountdown": "カウントダウンを編集",
   "selectDate": "日付を選択",
   "edit": "編集",
   "notes": "メモ",
   "optionalNotes": "任意のメモ",
-  "createFirst": "最初のカウントダウンを作成しましょう。",
+  "createFirst": "最初のカウントダウンを作成しましょう🎉",
   "notFound": "見つかりません",
-
   "upgradePro": "Pro にアップグレード",
   "proThanks": "Proをお使いです！🎉",
   "proThanksSubtitle": "ご支援ありがとうございます",
   "proChecking": "Proの状態を確認中…",
   "proStatusUnavailable": "状態を取得できません — タップして管理",
   "restorePurchases": "購入情報を復元",
-
   "appVersion": "アプリのバージョン",
   "mvp": "1.0.0 (MVP)",
-
   "titleLabel": "タイトル",
   "newCountdown": "新しいカウントダウン",
   "editCountdownFull": "カウントダウンを編集",
@@ -55,11 +52,9 @@
   "shareTitleIso": "共有: {title} • {dateIso}",
   "scheduledInMinutes": "{minutes}分後に通知",
   "scheduledInSeconds": "{seconds}秒後に通知",
-
   "dueToday": "今日",
   "daysLeft": "{count, plural, one {残り{count}日} other {残り{count}日}}",
   "daysAgo": "{count, plural, one {{count}日前} other {{count}日前}}",
-
   "exampleEventHint": "例: 誕生日パーティー",
   "dateLabel": "日付",
   "iconLabel": "アイコン",
@@ -67,5 +62,113 @@
   "enterTitle": "タイトルを入力してください",
   "chooseDate": "日付を選択してください",
   "enterPositiveDays": "1以上の日数を入力してください",
-  "countdownAdded": "カウントダウンを追加しました"
+  "countdownAdded": "カウントダウンを追加しました",
+  "paywallUnlockTitle": "Pro版をアンロック",
+  "@paywallUnlockTitle": {
+    "description": "Paywall の文言。"
+  },
+  "paywallSubtitle": "無制限のイベント、限定テーマ、広告なしの体験を手に入れましょう。",
+  "@paywallSubtitle": {
+    "description": "Paywall の文言。"
+  },
+  "paywallFeatureHeader": "機能",
+  "@paywallFeatureHeader": {
+    "description": "Paywall の文言。"
+  },
+  "paywallFreeColumn": "無料",
+  "@paywallFreeColumn": {
+    "description": "Paywall の文言。"
+  },
+  "paywallProColumn": "Pro",
+  "@paywallProColumn": {
+    "description": "Paywall の文言。"
+  },
+  "paywallFeatureEventLimit": "イベント上限",
+  "@paywallFeatureEventLimit": {
+    "description": "Paywall の文言。"
+  },
+  "paywallFeatureThemes": "テーマ",
+  "@paywallFeatureThemes": {
+    "description": "Paywall の文言。"
+  },
+  "paywallFeatureAdFree": "広告なし",
+  "@paywallFeatureAdFree": {
+    "description": "Paywall の文言。"
+  },
+  "paywallEventLimitPro": "無制限",
+  "@paywallEventLimitPro": {
+    "description": "Paywall の文言。"
+  },
+  "paywallThemeFree": "ベーシック",
+  "@paywallThemeFree": {
+    "description": "Paywall の文言。"
+  },
+  "paywallThemePro": "限定",
+  "@paywallThemePro": {
+    "description": "Paywall の文言。"
+  },
+  "paywallAdFreeFree": "いいえ",
+  "@paywallAdFreeFree": {
+    "description": "Paywall の文言。"
+  },
+  "paywallAdFreePro": "はい",
+  "@paywallAdFreePro": {
+    "description": "Paywall の文言。"
+  },
+  "paywallAlreadyPro": "すでにPro版を利用中です",
+  "@paywallAlreadyPro": {
+    "description": "Paywall の文言。"
+  },
+  "paywallProcessing": "処理中...",
+  "@paywallProcessing": {
+    "description": "Paywall の文言。"
+  },
+  "paywallPurchaseSuccess": "Pro版がアンロックされました！",
+  "@paywallPurchaseSuccess": {
+    "description": "Paywall の文言。"
+  },
+  "paywallPurchaseCancelled": "購入はキャンセルされました",
+  "@paywallPurchaseCancelled": {
+    "description": "Paywall の文言。"
+  },
+  "paywallPurchaseFailed": "購入に失敗しました: {error}",
+  "@paywallPurchaseFailed": {
+    "description": "Paywall エラー: 購入に失敗したことを知らせます。",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOneTimePrice": "買い切り {price}",
+  "@paywallOneTimePrice": {
+    "description": "Pro の買い切り価格を表示します。",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallRestoreSuccess": "購入履歴を復元しました",
+  "@paywallRestoreSuccess": {
+    "description": "Paywall の文言。"
+  },
+  "paywallRestoreFailed": "復元に失敗しました: {error}",
+  "@paywallRestoreFailed": {
+    "description": "購入の復元に失敗したときのメッセージ。",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallGenericError": "問題が発生しました。\n{message}",
+  "@paywallGenericError": {
+    "description": "Paywall の読み込みで問題が発生したときに表示します。",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  }
 }
