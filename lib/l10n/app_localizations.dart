@@ -691,6 +691,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1m'**
   String get reminderPresetOneMonth;
+
+  /// Notification channel name for countdown reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Countdown reminders'**
+  String get notificationChannelName;
+
+  /// Notification channel description for countdown reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders for upcoming countdown events.'**
+  String get notificationChannelDescription;
+
+  /// Notification title for upcoming countdowns.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming: {title}'**
+  String notificationTitleUpcoming(String title);
+
+  /// Notification title for test/debug reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Test: {title}'**
+  String notificationTitleTest(String title);
+
+  /// Notification body shown on the day of the event.
+  ///
+  /// In en, this message translates to:
+  /// **'Today is {title}'**
+  String notificationBodyToday(String title);
+
+  /// Notification body showing days remaining until the event.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {{count} day to go} other {{count} days to go}}'**
+  String notificationBodyDays(int count);
+
+  /// Notification body when one week remains.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week to go'**
+  String get notificationBodyOneWeek;
+
+  /// Notification body showing months remaining until the event.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one {{count} month to go} other {{count} months to go}}'**
+  String notificationBodyMonths(int count);
+
+  /// Notification body for immediate debug notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate notification'**
+  String get notificationDebugImmediate;
+
+  /// Notification body for scheduled debug notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Test reminder - fires at {time}'**
+  String notificationDebugScheduled(String time);
 }
 
 class _AppLocalizationsDelegate

@@ -345,4 +345,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderPresetOneMonth => '1m';
+
+  @override
+  String get notificationChannelName => 'Countdown reminders';
+
+  @override
+  String get notificationChannelDescription =>
+      'Reminders for upcoming countdown events.';
+
+  @override
+  String notificationTitleUpcoming(String title) {
+    return 'Upcoming: $title';
+  }
+
+  @override
+  String notificationTitleTest(String title) {
+    return 'Test: $title';
+  }
+
+  @override
+  String notificationBodyToday(String title) {
+    return 'Today is $title';
+  }
+
+  @override
+  String notificationBodyDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days to go',
+      one: '$count day to go',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationBodyOneWeek => '1 week to go';
+
+  @override
+  String notificationBodyMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months to go',
+      one: '$count month to go',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationDebugImmediate => 'Immediate notification';
+
+  @override
+  String notificationDebugScheduled(String time) {
+    return 'Test reminder - fires at $time';
+  }
 }

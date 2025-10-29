@@ -344,4 +344,58 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get reminderPresetOneMonth => '1か月';
+
+  @override
+  String get notificationChannelName => 'カウントダウンのリマインダー';
+
+  @override
+  String get notificationChannelDescription => 'イベントのリマインダー通知を送信します。';
+
+  @override
+  String notificationTitleUpcoming(String title) {
+    return 'まもなく開催: $title';
+  }
+
+  @override
+  String notificationTitleTest(String title) {
+    return 'テスト: $title';
+  }
+
+  @override
+  String notificationBodyToday(String title) {
+    return '今日は$titleの日です';
+  }
+
+  @override
+  String notificationBodyDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'あと$count日です',
+      one: 'あと$count日です',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationBodyOneWeek => 'あと1週間です';
+
+  @override
+  String notificationBodyMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'あと$countか月です',
+      one: 'あと$countか月です',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationDebugImmediate => '即時通知';
+
+  @override
+  String notificationDebugScheduled(String time) {
+    return 'テスト通知 - $timeに送信されます';
+  }
 }

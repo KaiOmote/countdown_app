@@ -241,5 +241,75 @@
   "reminderPresetOneMonth": "1か月",
   "@reminderPresetOneMonth": {
     "description": "1か月前リマインダーのプリセットラベル。"
+  },
+  "notificationChannelName": "カウントダウンのリマインダー",
+  "@notificationChannelName": {
+    "description": "通知チャンネル名（カウントダウン）。"
+  },
+  "notificationChannelDescription": "イベントのリマインダー通知を送信します。",
+  "@notificationChannelDescription": {
+    "description": "カウントダウン通知チャンネルの説明。"
+  },
+  "notificationTitleUpcoming": "まもなく開催: {title}",
+  "@notificationTitleUpcoming": {
+    "description": "イベント前の通知タイトル。",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTitleTest": "テスト: {title}",
+  "@notificationTitleTest": {
+    "description": "テスト通知のタイトル。",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationBodyToday": "今日は{title}の日です",
+  "@notificationBodyToday": {
+    "description": "イベント当日に表示する通知本文。",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationBodyDays": "{count, plural, one {あと{count}日です} other {あと{count}日です}}",
+  "@notificationBodyDays": {
+    "description": "イベントまでの日数を表示する通知本文。",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationBodyOneWeek": "あと1週間です",
+  "@notificationBodyOneWeek": {
+    "description": "イベントまで1週間の通知本文。"
+  },
+  "notificationBodyMonths": "{count, plural, one {あと{count}か月です} other {あと{count}か月です}}",
+  "@notificationBodyMonths": {
+    "description": "イベントまでの残り月数を表示する通知本文。",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationDebugImmediate": "即時通知",
+  "@notificationDebugImmediate": {
+    "description": "デバッグ用の即時通知本文。"
+  },
+  "notificationDebugScheduled": "テスト通知 - {time}に送信されます",
+  "@notificationDebugScheduled": {
+    "description": "デバッグ用のスケジュール通知本文。",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

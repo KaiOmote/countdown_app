@@ -241,5 +241,75 @@
   "reminderPresetOneMonth": "1m",
   "@reminderPresetOneMonth": {
     "description": "Label for the 1 month reminder preset chip."
+  },
+  "notificationChannelName": "Countdown reminders",
+  "@notificationChannelName": {
+    "description": "Notification channel name for countdown reminders."
+  },
+  "notificationChannelDescription": "Reminders for upcoming countdown events.",
+  "@notificationChannelDescription": {
+    "description": "Notification channel description for countdown reminders."
+  },
+  "notificationTitleUpcoming": "Upcoming: {title}",
+  "@notificationTitleUpcoming": {
+    "description": "Notification title for upcoming countdowns.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationTitleTest": "Test: {title}",
+  "@notificationTitleTest": {
+    "description": "Notification title for test/debug reminders.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationBodyToday": "Today is {title}",
+  "@notificationBodyToday": {
+    "description": "Notification body shown on the day of the event.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationBodyDays": "{count, plural, one {{count} day to go} other {{count} days to go}}",
+  "@notificationBodyDays": {
+    "description": "Notification body showing days remaining until the event.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationBodyOneWeek": "1 week to go",
+  "@notificationBodyOneWeek": {
+    "description": "Notification body when one week remains."
+  },
+  "notificationBodyMonths": "{count, plural, one {{count} month to go} other {{count} months to go}}",
+  "@notificationBodyMonths": {
+    "description": "Notification body showing months remaining until the event.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationDebugImmediate": "Immediate notification",
+  "@notificationDebugImmediate": {
+    "description": "Notification body for immediate debug notification."
+  },
+  "notificationDebugScheduled": "Test reminder - fires at {time}",
+  "@notificationDebugScheduled": {
+    "description": "Notification body for scheduled debug notification.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

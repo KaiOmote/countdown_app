@@ -4,12 +4,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart'
     show TargetPlatform, debugPrint, defaultTargetPlatform, kDebugMode, kIsWeb;
-import 'package:flutter/material.dart' show WidgetsBinding;
+import 'package:flutter/widgets.dart' show Locale, WidgetsBinding;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
+
+import 'package:countdown_app/l10n/app_localizations.dart';
 
 import '../../../core/navigation/nav.dart';
 import '../../../core/navigation/routes.dart';
@@ -24,8 +26,6 @@ class NotificationService {
   bool _initialized = false;
 
   static const String _channelId = 'countdown_reminders';
-  static const String _channelName = 'Countdown Reminders';
-  static const String _channelDesc = 'Reminders for upcoming countdown events';
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -49,10 +49,12 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onTapNotification,
     );
 
-    const androidChannel = AndroidNotificationChannel(
+    final l10n = _localizations();
+
+    final androidChannel = AndroidNotificationChannel(
       _channelId,
-      _channelName,
-      description: _channelDesc,
+      l10n.notificationChannelName,
+      description: l10n.notificationChannelDescription,
       importance: Importance.max,
     );
 
@@ -138,6 +140,9 @@ class NotificationService {
     await _cancelKnown(event);
     if (event.reminderOffsets.isEmpty) return;
 
+    final l10n = _localizations();
+    final details = _platformDetails(l10n);
+
     for (final offsetDays in event.reminderOffsets) {
       final scheduled = _computeTriggerLocal(event.dateUtc, offsetDays);
       if (scheduled == null) continue;
@@ -145,10 +150,10 @@ class NotificationService {
       final id = _notificationId(event.id, offsetDays);
       await _plugin.zonedSchedule(
         id,
-        'Upcoming: ${event.title}',
-        _bodyForOffset(offsetDays, event),
+        l10n.notificationTitleUpcoming(event.title),
+        _bodyForOffset(l10n, offsetDays, event),
         scheduled,
-        _platformDetails(),
+        details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
@@ -168,11 +173,12 @@ class NotificationService {
     await ensurePermissions();
 
     final id = _debugNotificationId(eventId, Duration.zero);
+    final l10n = _localizations();
     await _plugin.show(
       id,
-      'Test: $title',
-      'Immediate notification',
-      _platformDetails(),
+      l10n.notificationTitleTest(title),
+      l10n.notificationDebugImmediate,
+      _platformDetails(l10n),
       payload: eventId,
     );
 
@@ -193,15 +199,21 @@ class NotificationService {
     final now = tz.TZDateTime.now(tz.local);
     final scheduled = now.add(offset);
     final id = _debugNotificationId(eventId, offset);
+    final l10n = _localizations();
+    final notificationTitle = l10n.notificationTitleUpcoming(title);
+    final scheduledBody = l10n.notificationDebugScheduled(
+      _formatTime(scheduled),
+    );
+    final details = _platformDetails(l10n);
 
     var mode = await _preferredAndroidScheduleMode(exact: true);
     try {
       await _plugin.zonedSchedule(
         id,
-        'Upcoming: $title',
-        'Test reminder - fires at ${_formatTime(scheduled)}',
+        notificationTitle,
+        scheduledBody,
         scheduled,
-        _platformDetails(),
+        details,
         androidScheduleMode: mode,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
@@ -218,10 +230,10 @@ class NotificationService {
         }
         await _plugin.zonedSchedule(
           id,
-          'Upcoming: $title',
-          'Test reminder - fires at ${_formatTime(scheduled)}',
+          notificationTitle,
+          l10n.notificationDebugScheduled(_formatTime(scheduled)),
           scheduled,
-          _platformDetails(),
+          details,
           androidScheduleMode: mode,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
@@ -384,11 +396,11 @@ class NotificationService {
     return scheduled;
   }
 
-  NotificationDetails _platformDetails() {
-    const android = AndroidNotificationDetails(
+  NotificationDetails _platformDetails(AppLocalizations l10n) {
+    final android = AndroidNotificationDetails(
       _channelId,
-      _channelName,
-      channelDescription: _channelDesc,
+      l10n.notificationChannelName,
+      channelDescription: l10n.notificationChannelDescription,
       importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
@@ -398,7 +410,7 @@ class NotificationService {
       presentBadge: true,
       presentSound: true,
     );
-    return const NotificationDetails(android: android, iOS: ios);
+    return NotificationDetails(android: android, iOS: ios);
   }
 
   int _notificationId(String eventId, int offsetDays) {
@@ -409,16 +421,18 @@ class NotificationService {
     return Object.hash(eventId, offset.inSeconds) ^ 0x59d2;
   }
 
-  String _bodyForOffset(int offset, CountdownEvent event) {
-    if (offset <= 0) return 'Today is ${event.title}';
-    if (offset == 1) return '1 day to go';
-    if (offset == 3) return '3 days to go';
-    if (offset == 7) return '1 week to go';
+  String _bodyForOffset(
+    AppLocalizations l10n,
+    int offset,
+    CountdownEvent event,
+  ) {
+    if (offset <= 0) return l10n.notificationBodyToday(event.title);
+    if (offset == 7) return l10n.notificationBodyOneWeek;
     if (offset >= 30 && offset % 30 == 0) {
       final months = offset ~/ 30;
-      return '$months month${months == 1 ? '' : 's'} to go';
+      return l10n.notificationBodyMonths(months);
     }
-    return '$offset days to go';
+    return l10n.notificationBodyDays(offset);
   }
 
   Future<void> _cancelKnown(CountdownEvent event) async {
@@ -445,13 +459,14 @@ class NotificationService {
   bool get _isAndroid =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-  bool get _isIOS =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
   Future<bool?> _areNotificationsEnabled() async {
     if (_isAndroid) {
-      final androidPlugin = _plugin.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       return androidPlugin?.areNotificationsEnabled();
     }
 
@@ -496,5 +511,15 @@ class NotificationService {
       }
     }
     return null;
+  }
+
+  AppLocalizations _localizations() {
+    final dispatcher = WidgetsBinding.instance.platformDispatcher;
+    final locale = dispatcher.locale;
+    final supported = AppLocalizations.supportedLocales.firstWhere(
+      (l) => l.languageCode == locale.languageCode,
+      orElse: () => AppLocalizations.supportedLocales.first,
+    );
+    return lookupAppLocalizations(supported);
   }
 }
